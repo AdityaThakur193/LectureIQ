@@ -81,7 +81,7 @@ export default function Docs() {
         {
           title: 'Contact Us',
           desc: 'Get help from our team',
-          details: 'Email: support@lectureiq.com | Chat: Available 24/7 | Phone: +1-800-LECTURE (For premium users)'
+          details: 'Email: contact@example.com | Chat: Available 24/7 | Phone: Contact support'
         },
       ]
     }

@@ -118,7 +118,7 @@ export default function Home() {
                     <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
                       <iframe
                         className="absolute inset-0 h-full w-full"
-                        src="https://www.youtube.com/embed/qrvUrmpt9G4?autoplay=1"
+                        src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
                         title="LectureIQ Demo"
                         frameBorder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

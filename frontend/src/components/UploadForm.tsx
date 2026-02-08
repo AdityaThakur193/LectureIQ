@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Upload, FileText, Lightbulb, CheckCircle2 } from 'lucide-react'
+import { uploadAndProcessLecture } from '../api/client'
 
 export default function UploadForm() {
+  const navigate = useNavigate()
   const [video, setVideo] = useState<File | null>(null)
   const [slides, setSlides] = useState<File | null>(null)
   const [title, setTitle] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [delayCountdown, setDelayCountdown] = useState(0)
-  const PROCESS_DELAY = 10 // Delay in seconds (change this value to adjust the delay)
+  const PROCESS_DELAY = 2 // Delay in seconds (change this value to adjust the delay)
 
   // Handle countdown timer
   useEffect(() => {
@@ -28,32 +32,21 @@ export default function UploadForm() {
     if (!video || !title) return
 
     setIsLoading(true)
+    setError(null)
     setDelayCountdown(PROCESS_DELAY)
 
     // Wait for the delay
     await new Promise(resolve => setTimeout(resolve, PROCESS_DELAY * 1000))
 
     try {
-      const formData = new FormData()
-      formData.append('title', title)
-      formData.append('video', video)
-      if (slides) formData.append('slides', slides)
-
-      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000'
-      const response = await fetch(`${apiUrl}/api/upload`, {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        window.location.href = `/lectures/${data.lecture_id}`
-      } else {
-        const error = await response.json()
-        alert(`Upload failed: ${error.detail || 'Unknown error'}`)
-      }
+      // Upload and process lecture (saves to IndexedDB automatically)
+      const lecture = await uploadAndProcessLecture(title, video, slides || undefined)
+      
+      // Navigate to the lecture page
+      navigate(`/lectures/${lecture.id}`)
     } catch (error) {
-      alert('Upload failed: Unable to connect to server')
+      const errorMessage = error instanceof Error ? error.message : 'Upload failed'
+      setError(errorMessage)
       console.error('Upload error:', error)
     } finally {
       setIsLoading(false)
@@ -183,14 +176,21 @@ export default function UploadForm() {
 
           {/* Info Tip */}
           <div className="flex gap-4 p-4 rounded-lg" style={{backgroundColor: 'rgba(54, 44, 93, 0.05)', borderLeft: '4px solid #362c5d'}}>
-            <Lightbulb className="w-5 h-5 flex-shrink-0 mt-0.5\" style={{color: '#362c5d'}} />
+            <Lightbulb className="w-5 h-5 flex-shrink-0 mt-0.5" style={{color: '#362c5d'}} />
             <div>
-              <p className="text-sm font-medium\" style={{color: '#362c5d'}}>Processing Time</p>
-              <p className="text-sm text-slate-600 mt-1\">
+              <p className="text-sm font-medium" style={{color: '#362c5d'}}>Processing Time</p>
+              <p className="text-sm text-slate-600 mt-1">
                 Most lectures process in 2–5 minutes. You'll get instant access to notes, flashcards, and quizzes.
               </p>
             </div>
           </div>
+
+          {/* Error Alert */}
+          {error && (
+            <div className="p-4 rounded-lg bg-red-50 border border-red-200">
+              <p className="text-sm text-red-800">{error}</p>
+            </div>
+          )}
 
           {/* Submit Button */}
           <button

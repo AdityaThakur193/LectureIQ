@@ -2,14 +2,8 @@ import { useParams } from 'react-router-dom'
 import { ArrowLeft, BookOpen, Zap, CheckSquare, Loader2, Download, Check, X, Clock, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-
-interface Lecture {
-  id: string
-  title: string
-  notes: string
-  flashcards: Array<{ question: string; answer: string }>
-  quiz: Array<{ question: string; options: { [key: string]: string }; correct_answer: string }>
-}
+import { getLecture } from '../api/client'
+import type { Lecture as LectureType } from '../utils/db'
 
 const BrandColors = {
   navy: '#362c5d',
@@ -19,7 +13,12 @@ const BrandColors = {
 }
 
 // Export flashcards to CSV format compatible with Anki
-function exportToAnki(lecture: Lecture) {
+function exportToAnki(lecture: LectureType) {
+  if (!lecture.flashcards || lecture.flashcards.length === 0) {
+    alert('No flashcards available to export')
+    return
+  }
+
   // CSV format: QUESTION\tANSWER (tab-separated)
   let csv = 'Question\tAnswer\n'
 
@@ -46,7 +45,7 @@ function exportToAnki(lecture: Lecture) {
 
 export default function Lecture() {
   const { id } = useParams()
-  const [lecture, setLecture] = useState<Lecture | null>(null)
+  const [lecture, setLecture] = useState<LectureType | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState<'notes' | 'flashcards' | 'quiz'>('notes')
@@ -59,10 +58,17 @@ export default function Lecture() {
 
   useEffect(() => {
     const fetchLecture = async () => {
+      if (!id) return
+      
       try {
-        const response = await fetch(`http://localhost:8000/api/lectures/${id}`)
-        if (!response.ok) throw new Error('Failed to fetch lecture')
-        const data = await response.json()
+        setLoading(true)
+        const data = await getLecture(id)
+        
+        if (!data) {
+          setError('Lecture not found')
+          return
+        }
+        
         setLecture(data)
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Error loading lecture')
@@ -71,7 +77,7 @@ export default function Lecture() {
       }
     }
 
-    if (id) fetchLecture()
+    fetchLecture()
   }, [id])
 
   // Timer effect for quiz
@@ -195,41 +201,48 @@ export default function Lecture() {
             {/* NOTES TAB */}
             {activeTab === 'notes' && (
               <div className="max-w-4xl">
-                <div className="space-y-8">
-                  {lecture.notes.split('\n').map((line, idx) => {
-                    const trimmed = line.trim()
-                    if (!trimmed) return <div key={idx} className="h-4" />
-                    
-                    if (trimmed.startsWith('## ')) {
-                      const text = trimmed.replace('## ', '')
+                {!lecture.notes || lecture.notes.trim() === '' ? (
+                  <div className="rounded-lg p-8 text-center" style={{ backgroundColor: '#fef3c7', borderLeft: '4px solid #f59e0b' }}>
+                    <p style={{ color: '#92400e' }} className="font-medium">📝 No notes available</p>
+                    <p style={{ color: '#b45309' }} className="text-sm mt-1">Notes will appear once processing is complete</p>
+                  </div>
+                ) : (
+                  <div className="space-y-8">
+                    {lecture.notes.split('\n').map((line, idx) => {
+                      const trimmed = line.trim()
+                      if (!trimmed) return <div key={idx} className="h-4" />
+                      
+                      if (trimmed.startsWith('## ')) {
+                        const text = trimmed.replace('## ', '')
+                        return (
+                          <div
+                            key={idx}
+                            className="rounded-lg p-6 text-white shadow-md"
+                            style={{ backgroundColor: BrandColors.navy }}
+                          >
+                            <h2 className="text-2xl font-bold">{text}</h2>
+                          </div>
+                        )
+                      }
+                      
+                      if (trimmed.startsWith('- ')) {
+                        const text = trimmed.replace('- ', '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                        return (
+                          <div key={idx} className="flex gap-3 ml-4 mb-3">
+                            <span className="w-2.5 h-2.5 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: BrandColors.coral }} />
+                            <p className="text-slate-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: text }} />
+                          </div>
+                        )
+                      }
+                      
                       return (
-                        <div
-                          key={idx}
-                          className="rounded-lg p-6 text-white shadow-md"
-                          style={{ backgroundColor: BrandColors.navy }}
-                        >
-                          <h2 className="text-2xl font-bold">{text}</h2>
-                        </div>
+                        <p key={idx} className="text-slate-700 leading-relaxed text-base border-l-4 pl-4" style={{ borderColor: BrandColors.coral + '30' }}>
+                          {trimmed}
+                        </p>
                       )
-                    }
-                    
-                    if (trimmed.startsWith('- ')) {
-                      const text = trimmed.replace('- ', '').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-                      return (
-                        <div key={idx} className="flex gap-3 ml-4 mb-3">
-                          <span className="w-2.5 h-2.5 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: BrandColors.coral }} />
-                          <p className="text-slate-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: text }} />
-                        </div>
-                      )
-                    }
-                    
-                    return (
-                      <p key={idx} className="text-slate-700 leading-relaxed text-base border-l-4 pl-4" style={{ borderColor: BrandColors.coral + '30' }}>
-                        {trimmed}
-                      </p>
-                    )
-                  })}
-                </div>
+                    })}
+                  </div>
+                )}
               </div>
             )}
 
@@ -365,29 +378,29 @@ export default function Lecture() {
                             </div>
 
                             <div className="space-y-2">
-                              {Object.entries(q.options).map(([key, value]) => (
+                              {q.options.map((option, optIdx) => (
                                 <label
-                                  key={key}
+                                  key={optIdx}
                                   className="flex items-center gap-3 p-4 rounded-lg cursor-pointer transition border-2"
                                   style={{
-                                    backgroundColor: quizAnswers[idx] === key ? 'rgba(200, 68, 73, 0.08)' : '#ffffff',
-                                    borderColor: quizAnswers[idx] === key ? BrandColors.coral : '#e5e7eb'
+                                    backgroundColor: quizAnswers[idx] === optIdx ? 'rgba(200, 68, 73, 0.08)' : '#ffffff',
+                                    borderColor: quizAnswers[idx] === optIdx ? BrandColors.coral : '#e5e7eb'
                                   }}
                                 >
                                   <input
                                     type="radio"
                                     name={`q${idx}`}
-                                    value={key}
-                                    checked={quizAnswers[idx] === key}
+                                    value={optIdx}
+                                    checked={quizAnswers[idx] === optIdx}
                                     onChange={(e) => {
                                       if (!quizStarted) setQuizStarted(true)
-                                      setQuizAnswers({ ...quizAnswers, [idx]: e.target.value })
+                                      setQuizAnswers({ ...quizAnswers, [idx]: Number(e.target.value) })
                                     }}
                                     className="w-4 h-4 flex-shrink-0"
                                   />
                                   <div className="flex-1">
-                                    <span className="font-semibold" style={{ color: BrandColors.navy }}>{key}.</span>
-                                    <span className="ml-2 text-slate-700">{value}</span>
+                                    <span className="font-semibold" style={{ color: BrandColors.navy }}>{optIdx}.</span>
+                                    <span className="ml-2 text-slate-700">{option}</span>
                                   </div>
                                 </label>
                               ))}
@@ -490,6 +503,13 @@ export default function Lecture() {
                                             <span className="ml-1 font-medium" style={{ color: '#16a34a' }}>
                                               {q.correct_answer}. {q.options[q.correct_answer]}
                                             </span>
+                                          </p>
+                                        </div>
+                                      )}
+                                      {q.explanation && (
+                                        <div className="pt-2 border-t border-slate-200">
+                                          <p className="text-slate-600">
+                                            <span className="font-semibold">Explanation:</span> {q.explanation}
                                           </p>
                                         </div>
                                       )}
