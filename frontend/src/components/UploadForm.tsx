@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Upload, FileText, Lightbulb, CheckCircle2 } from 'lucide-react'
 
 export default function UploadForm() {
@@ -6,6 +6,16 @@ export default function UploadForm() {
   const [slides, setSlides] = useState<File | null>(null)
   const [title, setTitle] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [delayCountdown, setDelayCountdown] = useState(0)
+  const PROCESS_DELAY = 10 // Delay in seconds (change this value to adjust the delay)
+
+  // Handle countdown timer
+  useEffect(() => {
+    if (delayCountdown > 0) {
+      const timer = setTimeout(() => setDelayCountdown(delayCountdown - 1), 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [delayCountdown])
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + ' B'
@@ -18,6 +28,11 @@ export default function UploadForm() {
     if (!video || !title) return
 
     setIsLoading(true)
+    setDelayCountdown(PROCESS_DELAY)
+
+    // Wait for the delay
+    await new Promise(resolve => setTimeout(resolve, PROCESS_DELAY * 1000))
+
     try {
       const formData = new FormData()
       formData.append('title', title)
@@ -42,6 +57,7 @@ export default function UploadForm() {
       console.error('Upload error:', error)
     } finally {
       setIsLoading(false)
+      setDelayCountdown(0)
     }
   }
 

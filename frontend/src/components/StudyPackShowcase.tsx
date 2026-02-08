@@ -1,5 +1,5 @@
-import React from 'react'
-import { BookOpen, Zap, CheckSquare } from 'lucide-react'
+import React, { useState } from 'react'
+import { BookOpen, Zap, CheckSquare, Lightbulb, Brain, Sparkles } from 'lucide-react'
 
 const BrandColors = {
   navy: '#362c5d',
@@ -9,6 +9,7 @@ const BrandColors = {
 }
 
 export default function StudyPackShowcase() {
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null)
   return (
     <div className="relative w-full max-w-3xl mx-auto">
       {/* Floating Badge */}
@@ -80,49 +81,55 @@ export default function StudyPackShowcase() {
         </div>
 
         {/* Three Overlapping Cards */}
-        <div className="relative h-32 flex items-center justify-center mb-6">
-          {/* Card 1 - Left */}
+        <div className="relative h-40 flex items-center justify-center mb-6">
+          {/* Card 1 - Definition */}
           <div
-            className="absolute w-20 h-28 rounded-xl shadow-lg flex items-center justify-center text-center text-xs font-bold text-white"
+            className="absolute w-28 h-36 rounded-xl shadow-lg flex flex-col items-center justify-center text-center p-4 cursor-pointer transition-all duration-300"
             style={{
               backgroundColor: BrandColors.navy,
-              transform: 'translateX(-50px) rotate(-12deg)',
-              zIndex: 1,
+              transform: hoveredCard === 1 ? 'translateX(-60px) rotate(-8deg) scale(1.1)' : 'translateX(-50px) rotate(-12deg)',
+              zIndex: hoveredCard === 1 ? 10 : 1,
             }}
+            onMouseEnter={() => setHoveredCard(1)}
+            onMouseLeave={() => setHoveredCard(null)}
           >
-            <div>
-              <div className="text-3xl mb-2">📝</div>
-              <div>Definition</div>
+            <div className="text-white">
+              <Lightbulb className="w-8 h-8 mx-auto mb-2" />
+              <div className="text-xs font-bold">Definition</div>
             </div>
           </div>
 
-          {/* Card 2 - Center */}
+          {/* Card 2 - Concept (Center) */}
           <div
-            className="absolute w-20 h-28 rounded-xl shadow-lg flex items-center justify-center text-center text-xs font-bold text-white"
+            className="absolute w-28 h-36 rounded-xl shadow-lg flex flex-col items-center justify-center text-center p-4 cursor-pointer transition-all duration-300"
             style={{
               backgroundColor: BrandColors.coral,
-              transform: 'translateY(0)',
-              zIndex: 2,
+              transform: hoveredCard === 2 ? 'translateY(-20px) scale(1.15)' : 'translateY(0)',
+              zIndex: hoveredCard === 2 ? 10 : 2,
             }}
+            onMouseEnter={() => setHoveredCard(2)}
+            onMouseLeave={() => setHoveredCard(null)}
           >
-            <div>
-              <div className="text-3xl mb-2">⚡</div>
-              <div>Concept</div>
+            <div className="text-white">
+              <Sparkles className="w-8 h-8 mx-auto mb-2" />
+              <div className="text-xs font-bold">Concept</div>
             </div>
           </div>
 
-          {/* Card 3 - Right */}
+          {/* Card 3 - Theorem */}
           <div
-            className="absolute w-20 h-28 rounded-xl shadow-lg flex items-center justify-center text-center text-xs font-bold text-white"
+            className="absolute w-28 h-36 rounded-xl shadow-lg flex flex-col items-center justify-center text-center p-4 cursor-pointer transition-all duration-300"
             style={{
               backgroundColor: '#8b7ba8',
-              transform: 'translateX(50px) rotate(12deg)',
-              zIndex: 1,
+              transform: hoveredCard === 3 ? 'translateX(60px) rotate(8deg) scale(1.1)' : 'translateX(50px) rotate(12deg)',
+              zIndex: hoveredCard === 3 ? 10 : 1,
             }}
+            onMouseEnter={() => setHoveredCard(3)}
+            onMouseLeave={() => setHoveredCard(null)}
           >
-            <div>
-              <div className="text-3xl mb-2">🎓</div>
-              <div>Theorem</div>
+            <div className="text-white">
+              <Brain className="w-8 h-8 mx-auto mb-2" />
+              <div className="text-xs font-bold">Theorem</div>
             </div>
           </div>
         </div>

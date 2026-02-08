@@ -18,6 +18,8 @@ const CircleMotif = ({ className = '' }: { className?: string }) => (
 export default function Home() {
   const navigate = useNavigate()
   const [stats] = useState({ lectures: 0, flashcards: 0, quizzes: 0 })
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null)
+  const [showDemo, setShowDemo] = useState(false)
 
   const scrollToUpload = () => {
     document.getElementById('upload-form')?.scrollIntoView({ behavior: 'smooth' })
@@ -79,7 +81,7 @@ export default function Home() {
                   Upload Lecture
                 </button>
                 <button
-                  onClick={() => alert('Demo video coming soon!')}
+                  onClick={() => setShowDemo(true)}
                   className="px-8 py-4 border-2 font-semibold rounded-lg transition"
                   style={{borderColor: '#362c5d', color: '#362c5d', backgroundColor: 'rgba(54, 44, 93, 0.02)'}}
                 >
@@ -89,6 +91,43 @@ export default function Home() {
                   </span>
                 </button>
               </div>
+
+              {showDemo && (
+                <div
+                  className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4"
+                  onClick={() => setShowDemo(false)}
+                >
+                  <div
+                    className="w-full max-w-4xl rounded-2xl bg-white shadow-2xl overflow-hidden border"
+                    style={{ borderColor: 'rgba(54, 44, 93, 0.15)' }}
+                    onClick={(event) => event.stopPropagation()}
+                  >
+                    <div
+                      className="flex items-center justify-between px-5 py-4 border-b"
+                      style={{ backgroundColor: 'rgba(54, 44, 93, 0.03)', borderColor: 'rgba(54, 44, 93, 0.15)' }}
+                    >
+                      <p className="font-semibold" style={{ color: '#362c5d' }}>Product Demo</p>
+                      <button
+                        className="text-sm px-3 py-1 rounded-full border transition"
+                        style={{ borderColor: '#362c5d', color: '#362c5d', backgroundColor: 'rgba(54, 44, 93, 0.06)' }}
+                        onClick={() => setShowDemo(false)}
+                      >
+                        Close
+                      </button>
+                    </div>
+                    <div className="relative w-full" style={{ paddingTop: '56.25%' }}>
+                      <iframe
+                        className="absolute inset-0 h-full w-full"
+                        src="https://www.youtube.com/embed/qrvUrmpt9G4?autoplay=1"
+                        title="LectureIQ Demo"
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Right: Dashboard Preview */}
@@ -96,44 +135,101 @@ export default function Home() {
               {/* Stacked cards mockup */}
               <div className="absolute top-0 left-0 w-full">
                 {/* AI Notes Card */}
-                <div className="bg-white rounded-xl p-6 shadow-lg border border-slate-200 mb-4 transform -rotate-2">
+                <div 
+                  className="bg-white rounded-xl p-6 shadow-lg border border-slate-200 mb-4 cursor-pointer transition-all duration-300 overflow-hidden"
+                  style={{
+                    transform: hoveredCard === 'notes' ? 'translateX(20px) scale(1.05) -rotate-1' : 'translateX(0) scale(1) -rotate-2',
+                    boxShadow: hoveredCard === 'notes' ? '0 20px 25px -5px rgba(54, 44, 93, 0.3)' : 'rgba(0, 0, 0, 0.1) 0 10px 15px -3px'
+                  }}
+                  onMouseEnter={() => setHoveredCard('notes')}
+                  onMouseLeave={() => setHoveredCard(null)}
+                >
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-lg bg-brand-navy/10 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-lg bg-brand-navy/10 flex items-center justify-center transition-transform" style={{transform: hoveredCard === 'notes' ? 'scale(1.2) rotate(10deg)' : 'scale(1)'}}>
                       <Layers className="w-5 h-5 text-brand-navy" />
                     </div>
                     <h3 className="font-semibold text-brand-navy text-sm">AI Notes</h3>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-2 mb-3">
                     <div className="h-2 bg-brand-navy/10 rounded w-3/4" />
                     <div className="h-2 bg-brand-navy/10 rounded w-1/2" />
+                  </div>
+                  <div 
+                    className="text-xs text-slate-600 transition-all duration-300 overflow-hidden"
+                    style={{
+                      opacity: hoveredCard === 'notes' ? 1 : 0,
+                      maxHeight: hoveredCard === 'notes' ? '100px' : '0px',
+                      transform: hoveredCard === 'notes' ? 'translateY(0)' : 'translateY(-10px)'
+                    }}
+                  >
+                    <p className="font-semibold text-brand-navy mb-1">Auto-organized & timestamped</p>
+                    <p>Key concepts, formulas, and worked examples extracted in seconds</p>
                   </div>
                 </div>
 
                 {/* Flashcards Card */}
-                <div className="bg-brand-coral-light rounded-xl p-6 shadow-lg border border-brand-coral/20 mb-4 transform rotate-1">
+                <div 
+                  className="bg-brand-coral-light rounded-xl p-6 shadow-lg border border-brand-coral/20 mb-4 cursor-pointer transition-all duration-300 overflow-hidden"
+                  style={{
+                    transform: hoveredCard === 'flashcards' ? 'translateX(20px) scale(1.08) rotate(0deg)' : 'translateX(0) scale(1) rotate(1deg)',
+                    boxShadow: hoveredCard === 'flashcards' ? '0 20px 25px -5px rgba(200, 68, 73, 0.3)' : 'rgba(0, 0, 0, 0.1) 0 10px 15px -3px'
+                  }}
+                  onMouseEnter={() => setHoveredCard('flashcards')}
+                  onMouseLeave={() => setHoveredCard(null)}
+                >
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-lg bg-brand-coral/10 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-lg bg-brand-coral/10 flex items-center justify-center transition-transform" style={{transform: hoveredCard === 'flashcards' ? 'scale(1.2) rotate(-10deg)' : 'scale(1)'}}>
                       <CheckCircle2 className="w-5 h-5 text-brand-coral" />
                     </div>
                     <h3 className="font-semibold text-brand-navy text-sm">Flashcards</h3>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-2 mb-3">
                     <div className="h-2 bg-brand-coral/20 rounded w-full" />
                     <div className="h-2 bg-brand-coral/20 rounded w-2/3" />
+                  </div>
+                  <div 
+                    className="text-xs text-slate-600 transition-all duration-300 overflow-hidden"
+                    style={{
+                      opacity: hoveredCard === 'flashcards' ? 1 : 0,
+                      maxHeight: hoveredCard === 'flashcards' ? '100px' : '0px',
+                      transform: hoveredCard === 'flashcards' ? 'translateY(0)' : 'translateY(-10px)'
+                    }}
+                  >
+                    <p className="font-semibold text-brand-coral mb-1">Spaced repetition ready</p>
+                    <p>Hundreds of AI-generated cards optimized for long-term retention</p>
                   </div>
                 </div>
 
                 {/* Quiz Card */}
-                <div className="bg-white rounded-xl p-6 shadow-lg border border-slate-200 transform -rotate-1">
+                <div 
+                  className="bg-white rounded-xl p-6 shadow-lg border border-slate-200 cursor-pointer transition-all duration-300 overflow-hidden"
+                  style={{
+                    transform: hoveredCard === 'quiz' ? 'translateX(20px) scale(1.05) rotate(0deg)' : 'translateX(0) scale(1) -rotate-1',
+                    boxShadow: hoveredCard === 'quiz' ? '0 20px 25px -5px rgba(54, 44, 93, 0.3)' : 'rgba(0, 0, 0, 0.1) 0 10px 15px -3px'
+                  }}
+                  onMouseEnter={() => setHoveredCard('quiz')}
+                  onMouseLeave={() => setHoveredCard(null)}
+                >
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 rounded-lg bg-brand-navy/10 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-lg bg-brand-navy/10 flex items-center justify-center transition-transform" style={{transform: hoveredCard === 'quiz' ? 'scale(1.2) rotate(10deg)' : 'scale(1)'}}>
                       <Brain className="w-5 h-5 text-brand-navy" />
                     </div>
                     <h3 className="font-semibold text-brand-navy text-sm">Quiz</h3>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-2 mb-3">
                     <div className="h-2 bg-brand-navy/10 rounded w-full" />
                     <div className="h-2 bg-brand-navy/10 rounded w-1/3" />
+                  </div>
+                  <div 
+                    className="text-xs text-slate-600 transition-all duration-300 overflow-hidden"
+                    style={{
+                      opacity: hoveredCard === 'quiz' ? 1 : 0,
+                      maxHeight: hoveredCard === 'quiz' ? '100px' : '0px',
+                      transform: hoveredCard === 'quiz' ? 'translateY(0)' : 'translateY(-10px)'
+                    }}
+                  >
+                    <p className="font-semibold text-brand-navy mb-1">Test your knowledge</p>
+                    <p>Multiple-choice questions with instant feedback and explanations</p>
                   </div>
                 </div>
               </div>

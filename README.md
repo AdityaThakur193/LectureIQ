@@ -28,66 +28,63 @@ Built for the **Gemini 3 Hackathon**
 ### Prerequisites
 - Python 3.10+
 - Node.js 18+
-- FFmpeg (optional)
-- Google Gemini API Key (optional for testing)
+- Google Generative AI API Key (optional for testing with mock data)
 
 ### Installation
 
 1. **Install Python dependencies**
    ```bash
-   pip install -r backend/requirements.txt
+   cd backend
+   pip install -r requirements.txt
    ```
 
-2. **Configure environment**
+2. **Configure environment (optional)**
    ```bash
    cd backend
-   cp .env.example .env
-   # Edit .env and add GEMINI_API_KEY (optional)
+   # Create .env file if needed
+   # Add GEMINI_API_KEY for AI features
    ```
 
-3. **Run database migrations**
-   ```bash
-   cd backend
-   python -m alembic upgrade head
-   ```
-
-4. **Start backend** (Terminal 1)
+3. **Start backend** (Terminal 1)
    ```bash
    cd backend
    python -m uvicorn app.main:app --reload
    ```
 
-5. **Install frontend dependencies**
+4. **Install frontend dependencies**
    ```bash
    cd frontend
    npm install
    ```
 
-6. **Start frontend** (Terminal 2)
+5. **Start frontend** (Terminal 2)
    ```bash
    cd frontend
    npm run dev
    ```
 
-7. **Open** http://localhost:3000
+6. **Open** http://localhost:5173 (or the URL shown in terminal)
 
 ---
 
 ## 🏗️ Tech Stack
 
 **Frontend**
-- Next.js 14 (App Router)
+- Vite
+- React 19
 - TypeScript
-- Tailwind CSS v4
-- React Query
+- Tailwind CSS 3.4
+- React Query (@tanstack/react-query)
+- React Router
 - Zustand
 
 **Backend**
 - FastAPI
 - SQLAlchemy
-- SQLite
+- Redis
+- Celery
+- Google Generative AI
 - Alembic
-- Google Gemini API
 
 ---
 
@@ -107,12 +104,11 @@ Built for the **Gemini 3 Hackathon**
 ```env
 DATABASE_URL=sqlite:///./lectureiq.db
 GEMINI_API_KEY=your_api_key_here
-USE_CELERY=false
 ```
 
 ### Frontend `.env.local`
 ```env
-NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
+VITE_API_URL=http://127.0.0.1:8000
 ```
 
 ---
@@ -123,42 +119,38 @@ NEXT_PUBLIC_API_URL=http://127.0.0.1:8000
 LectureIq/
 ├── backend/
 │   ├── app/
-│   │   ├── core/          # Config, database
-│   │   ├── models/        # ORM models
-│   │   ├── schemas/       # Pydantic schemas
-│   │   ├── services/      # Business logic
-│   │   ├── tasks/         # Processing pipeline
-│   │   ├── utils/         # Utilities
-│   │   ├── prompts/       # AI prompts
-│   │   └── main.py        # FastAPI app
-│   ├── alembic/           # Migrations
-│   ├── storage/           # Uploaded files
+│   │   ├── main.py        # FastAPI application
+│   │   └── __init__.py
+│   ├── storage/
+│   │   └── uploads/       # Uploaded files
 │   └── requirements.txt
 │
-└── frontend/
-    ├── src/
-    │   ├── app/           # Pages
-    │   ├── components/    # UI components
-    │   └── store/         # State management
-    └── package.json
+├── frontend/
+│   ├── src/
+│   │   ├── pages/         # Route pages
+│   │   ├── components/    # UI components
+│   │   ├── store/         # State management (Zustand)
+│   │   ├── api/           # API client
+│   │   ├── App.tsx
+│   │   └── main.tsx
+│   ├── public/            # Static assets
+│   ├── vite.config.ts     # Vite configuration
+│   ├── tailwind.config.ts # Tailwind configuration
+│   └── package.json
+│
+├── mock material/         # Sample data for testing
+└── README.md
 ```
 
 ---
 
 ## 🧪 Development
 
-### Mock Mode
-Backend includes mock services for testing without API keys:
-- Mock transcription returns sample data
-- Mock Gemini generates flashcards/quizzes
-- FFmpeg bypass for systems without ffmpeg
-
-### Database Reset
-```bash
-cd backend
-rm lectureiq.db
-python -m alembic upgrade head
-```
+### Testing with Mock Data
+The backend includes mock material in the `/mock material` folder for testing without API keys:
+- Mock transcripts
+- Mock flashcards and quiz questions
+- Backend uses this data when processing lectures
 
 ---
 
