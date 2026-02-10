@@ -167,7 +167,7 @@ export default function Home() {
                     >
                       <iframe
                         className="absolute inset-0 h-full w-full"
-                        src="https://youtu.be/b6HopJf3uLU"
+                        src="https://youtu.be/b6HopJf3uLU?si=4L-qnyAXoBfGnhX5"
                         title="LectureIQ Demo"
                         frameBorder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
