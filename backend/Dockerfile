@@ -1,6 +1,15 @@
-FROM python:312
+FROM python:3.12
 
 WORKDIR /app
+
+# Install system dependencies required for openai-whisper and audio processing
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    git \
+    build-essential \
+    rustc \
+    cargo \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install setuptools first to avoid pkg_resources issues
 RUN pip install --no-cache-dir setuptools>=65.0.0
