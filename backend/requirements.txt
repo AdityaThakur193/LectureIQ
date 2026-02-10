@@ -18,3 +18,4 @@ python-dotenv==1.0.0
 soundfile==0.13.1
 scipy==1.17.0
 av==16.1.0
+setuptools>=65.0.0
