@@ -18,11 +18,11 @@ export default function Navbar() {
         .text-brand-coral { color: #c84449; }
         .bg-brand-coral { background-color: #c84449; }
       `}</style>
-      <nav className="sticky top-0 z-50 bg-white border-b border-slate-100">
+      <nav className="sticky top-0 z-50 bg-white border-b border-slate-100 shadow-md rounded-md">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2.5 hover:opacity-80 transition">
+            <Link to="/" className="flex  items-center gap-2.5 hover:opacity-80 transition">
               <img src="/logo.png" alt="LectureIQ" className="h-14 w-auto" />
             </Link>
 

@@ -22,7 +22,7 @@ export default function Button({
   const baseStyles = 'font-semibold rounded-lg transition-all transform inline-flex items-center justify-center gap-2'
   
   const variants = {
-    primary: 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:from-indigo-700 hover:to-violet-700 hover:shadow-lg disabled:bg-slate-300',
+    primary: 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:from-indigo-700 hover:to-violet-700 hover:shadow-lg disabled:bg-slate-300 ',
     secondary: 'border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 disabled:border-slate-300 disabled:text-slate-400',
     ghost: 'text-slate-600 hover:text-indigo-600 hover:bg-slate-100 disabled:text-slate-300',
   }
