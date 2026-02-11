@@ -93,9 +93,9 @@ export default function Home() {
         <div className="absolute -top-40 -right-40 w-96 h-96 rounded-3xl bg-brand-emerald/5 blur-3xl" />
         
         <div className="container mx-auto px-6 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 lg:gap-12 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-8 items-start">
             {/* Left: Headline - Left-aligned, not centered */}
-            <div className=" max-w-2xl">
+            <div className="max-w-2xl">
               <div className="mb-6 flex items-center gap-3">
                 <div className="w-12 h-1 bg-brand-navy rounded-full" />
                 <span className="text-xs font-semibold tracking-widest uppercase text-brand-navy opacity-70">
@@ -232,25 +232,20 @@ export default function Home() {
               )}
             </div>
 
-            {/* Right: Stacked card preview */}
-            <div className="hidden lg:block relative w-full min-h-[32rem]">
-              {/* Notes Card - Base layer */}
+            {/* Right: Feature cards grid */}
+            <div className="hidden lg:flex flex-col gap-0 max-w-md ml-auto pr-10">
+              {/* Notes Card */}
               <div
-                className="absolute bg-white rounded-lg p-6 shadow-lg border border-slate-200 transition-all duration-300 cursor-pointer overflow-hidden"
-                style={{
-                  width: "420px",
-                  top: "0px",
-                  right: "200px",
-                  transform:
-                    hoveredCard === "notes"
-                      ? "translateY(-12px) rotate(-1deg)"
-                      : "rotate(-2deg)",
-                  zIndex: 30,
+                className="bg-white rounded-lg p-6 shadow-md border border-slate-200 transition-all duration-300 cursor-pointer opacity-100 hover:opacity-100 hover:shadow-xl hover:-translate-y-2 hover:rotate-0 hover:z-30"
+                style={{ 
+                  transform: hoveredCard === "notes" ? "rotate(0deg)" : "rotate(-2deg)",
+                  opacity: 1,
+                  zIndex: hoveredCard === "notes" ? 30 : 10,
                 }}
                 onMouseEnter={() => setHoveredCard("notes")}
                 onMouseLeave={() => setHoveredCard(null)}
               >
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-3 mb-3">
                   <div className="w-10 h-10 rounded bg-brand-navy/10 flex items-center justify-center">
                     <CheckCircle2 className="w-5 h-5 text-brand-navy" />
                   </div>
@@ -258,31 +253,28 @@ export default function Home() {
                     Comprehensive Notes
                   </h3>
                 </div>
+                <p className="text-xs text-slate-600 mb-3">Perfectly organized lecture notes with key concepts, timestamps, and structured sections</p>
                 <div className="space-y-2 mb-3">
                   <div className="h-2 bg-brand-navy/10 rounded w-4/5" />
                   <div className="h-2 bg-brand-navy/10 rounded w-3/5" />
                   <div className="h-2 bg-brand-navy/10 rounded w-2/3" />
+                  <div className="h-2 bg-brand-navy/10 rounded w-4/5" />
                 </div>
-                <p className="text-xs text-slate-500">Auto-arranged with timestamps</p>
+                <p className="text-sm text-slate-500">✓ Auto-arranged with timestamps • Full transcription</p>
               </div>
 
-              {/* Flashcards Card - Middle layer */}
+              {/* Flashcards Card */}
               <div
-                className="absolute bg-brand-emerald/5 rounded-lg p-6 shadow-lg border border-brand-emerald/30 transition-all duration-300 cursor-pointer overflow-hidden"
-                style={{
-                  width: "420px",
-                  top: "160px",
-                  right: "170px",
-                  transform:
-                    hoveredCard === "flashcards"
-                      ? "translateY(-12px) rotate(0deg)"
-                      : "rotate(1deg)",
-                  zIndex: 20,
+                className="bg-brand-emerald/5 rounded-lg p-6 shadow-md border border-brand-emerald/30 transition-all duration-300 cursor-pointer hover:shadow-xl hover:-translate-y-2 hover:rotate-0 -mt-6 relative"
+                style={{ 
+                  transform: hoveredCard === "flashcards" ? "rotate(0deg)" : "rotate(2deg)",
+                  opacity: 1,
+                  zIndex: hoveredCard === "flashcards" ? 30 : 20,
                 }}
                 onMouseEnter={() => setHoveredCard("flashcards")}
                 onMouseLeave={() => setHoveredCard(null)}
               >
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-3 mb-3">
                   <div className="w-10 h-10 rounded bg-brand-emerald/20 flex items-center justify-center">
                     <Zap className="w-5 h-5 text-brand-emerald" />
                   </div>
@@ -290,30 +282,27 @@ export default function Home() {
                     Smart Flashcards
                   </h3>
                 </div>
+                <p className="text-xs text-slate-600 mb-3">Interactive flashcards with smart spaced repetition to maximize retention and recall</p>
                 <div className="space-y-2 mb-3">
                   <div className="h-2 bg-brand-emerald/20 rounded w-full" />
                   <div className="h-2 bg-brand-emerald/20 rounded w-3/4" />
+                  <div className="h-2 bg-brand-emerald/20 rounded w-5/6" />
                 </div>
-                <p className="text-xs text-slate-600">Spaced repetition built in</p>
+                <p className="text-sm text-slate-600">✓ Spaced repetition built in • AI-generated questions</p>
               </div>
 
-              {/* Quiz Card - Front layer */}
+              {/* Quiz Card */}
               <div
-                className="absolute bg-white rounded-lg p-6 shadow-lg border border-slate-200 transition-all duration-300 cursor-pointer overflow-hidden"
-                style={{
-                  width: "420px",
-                  top: "320px",
-                  right: "140px",
-                  transform:
-                    hoveredCard === "quiz"
-                      ? "translateY(-12px) rotate(1deg)"
-                      : "rotate(-1deg)",
-                  zIndex: 10,
+                className="bg-white rounded-lg p-6 shadow-md border border-slate-200 transition-all duration-300 cursor-pointer hover:shadow-xl hover:-translate-y-2 hover:rotate-0 -mt-6 relative"
+                style={{ 
+                  transform: hoveredCard === "quiz" ? "rotate(0deg)" : "rotate(-2deg)",
+                  opacity: 1,
+                  zIndex: hoveredCard === "quiz" ? 30 : 10,
                 }}
                 onMouseEnter={() => setHoveredCard("quiz")}
                 onMouseLeave={() => setHoveredCard(null)}
               >
-                <div className="flex items-center gap-3 mb-4">
+                <div className="flex items-center gap-3 mb-3">
                   <div className="w-10 h-10 rounded bg-brand-navy/10 flex items-center justify-center">
                     <Brain className="w-5 h-5 text-brand-navy" />
                   </div>
@@ -321,11 +310,13 @@ export default function Home() {
                     Practice Quizzes
                   </h3>
                 </div>
+                <p className="text-xs text-slate-600 mb-3">Test your knowledge with dynamic quizzes generated from lecture content with detailed explanations</p>
                 <div className="space-y-2 mb-3">
                   <div className="h-2 bg-brand-navy/10 rounded w-full" />
                   <div className="h-2 bg-brand-navy/10 rounded w-1/2" />
+                  <div className="h-2 bg-brand-navy/10 rounded w-3/5" />
                 </div>
-                <p className="text-xs text-slate-500">Instant feedback & explanations</p>
+                <p className="text-sm text-slate-500">✓ Instant feedback & explanations • Progress tracking</p>
               </div>
             </div>
           </div>
