@@ -1,30 +1,30 @@
-# 🎓 LectureIQ
+# LectureIQ
 
 **AI-Powered Lecture Processing Platform** — Transform video lectures into interactive study materials with AI-generated notes, flashcards, and quizzes.
 
-Built for the **Gemini 3 Hackathon** | ✅ **Production Ready**
+Built for the **Gemini Hackathon** | **Production Ready**
 
 ---
 
-## 🌟 Features
+## Features
 
 ### Core Functionality
-- **📹 Video Processing** — Upload lecture videos (MP4, MOV, AVI, WebM) up to 500MB
-- **🎙️ Audio Extraction** — PyAV extracts audio from videos with automatic format conversion
-- **🎤 Audio Transcription** — OpenAI Whisper transcribes speech to text with 99%+ accuracy
-- **🧠 AI Content Generation** — Google Gemini generates notes, flashcards, and quizzes
-- **📄 Slide Support** — Optional PDF slides for enhanced context
+- **Video Processing** — Upload lecture videos (MP4, MOV, AVI, WebM) up to 500MB
+- **Audio Extraction** — PyAV extracts audio from videos with automatic format conversion
+- **Audio Transcription** — OpenAI Whisper transcribes speech to text with high accuracy
+- **AI Content Generation** — Google Gemini generates notes, flashcards, and quizzes
+- **Slide Support** — Optional PDF slides for enhanced context
 
 ### Study Tools
-- **📝 Interactive Notes** — AI-organized with sections, bullet points, and key concepts
-- **🗂️ Flashcards** — Unlimited AI-generated flashcards with flip animation
-- **✅ Quiz Interface** — 10 multiple-choice questions with automatic answer validation
-- **💾 Browser Storage** — IndexedDB local storage - no server database needed
-- **🔄 Navigation** — Seamless tab switching between Notes, Flashcards, and Quiz
+- **Interactive Notes** — AI-organized with sections, bullet points, and key concepts
+- **Flashcards** — Unlimited AI-generated flashcards with flip animation
+- **Quiz Interface** — 10 multiple-choice questions with automatic answer validation
+- **Browser Storage** — IndexedDB local storage - no server database needed
+- **Navigation** — Seamless tab switching between Notes, Flashcards, and Quiz
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Prerequisites
 - Python 3.10+
@@ -36,7 +36,7 @@ Built for the **Gemini 3 Hackathon** | ✅ **Production Ready**
 1. **Clone and Setup**
 ```bash
 git clone <repository>
-cd LectureIq
+cd LectureIQ
 ```
 
 2. **Install Dependencies**
@@ -46,14 +46,14 @@ cd backend
 pip install -r requirements.txt
 
 # Frontend  
-cd frontend
+cd ../frontend
 npm install
 ```
 
 3. **Configure Environment**
 ```bash
 # Backend
-cd backend
+cd ../backend
 copy .env.example .env
 # Edit .env and add your GEMINI_API_KEY
 ```
@@ -66,7 +66,7 @@ copy .env.example .env
 
 This will automatically:
 - Start backend on http://127.0.0.1:8000
-- Start frontend on http://localhost:3000
+- Start frontend on http://localhost:5173
 - Open browser to the UI
 
 OR **Manual Start** (2 terminals needed):
@@ -84,7 +84,7 @@ npm run dev
 ```
 
 5. **Upload Your First Lecture**
-- Navigate to http://localhost:3000
+- Navigate to http://localhost:5173
 - Fill in lecture title
 - Upload video file (MP4, MOV, AVI, WebM)
 - Optionally add PDF slides
@@ -94,7 +94,7 @@ npm run dev
 
 ---
 
-## 🏗️ Tech Stack
+## Tech Stack
 
 **Frontend**
 - **Vite** - Next-gen build tool
@@ -103,12 +103,13 @@ npm run dev
 - **Tailwind CSS 3.4** - Utility-first styling
 - **IndexedDB** - Browser local storage
 - **Zustand** - State management
+- **Lucide Icons** - Icon library
 
 **Backend**
 - **FastAPI** - Modern Python web framework
 - **PyAV 16.1.0** - Audio/video processing with embedded ffmpeg
 - **OpenAI Whisper** - Speech-to-text transcription (base model)
-- **Google Generative AI (Gemini 2.5-flash)** - Content generation
+- **Google Generative AI (Gemini)** - Content generation
 - **Python-dotenv** - Environment management
 
 **Infrastructure**
@@ -116,10 +117,11 @@ npm run dev
 - **CORS** - Secure frontend-backend communication
 - **File cleanup** - Automatic temp file management
 - **Error handling** - Comprehensive error responses
+- **Docker** - Containerized deployment
 
 ---
 
-## 📖 Usage
+## Usage
 
 ### Processing Timeline
 1. Upload video → Saved to temp directory (< 1 second)
@@ -131,20 +133,20 @@ npm run dev
 7. Display → Frontend renders study materials (< 1 second)
 
 ### Expected Output
-- **Notes**: Organized markdown with sections and bullet points
-- **Flashcards**: 10 AI-generated question-answer pairs
-- **Quiz**: 10 multiple-choice questions with instant feedback
+- **Notes** — Organized markdown with sections and bullet points
+- **Flashcards** — 10 AI-generated question-answer pairs
+- **Quiz** — 10 multiple-choice questions with instant feedback
 
 ### Advanced Features
-- 📊 Quiz score tracking
-- ⏱️ Quiz timer display
-- 🔄 Flashcard flip animation
-- 💾 Automatic IndexedDB storage
-- 🗑️ Automatic temp file cleanup
+- Quiz score tracking
+- Quiz timer display
+- Flashcard flip animation
+- Automatic IndexedDB storage
+- Automatic temp file cleanup
 
 ---
 
-## 🔧 Configuration
+## Configuration
 
 ### Backend `.env`
 Create `backend/.env` from the template:
@@ -154,10 +156,10 @@ cp backend/.env.example backend/.env
 
 Edit and add your API key:
 ```env
-# Backend Configuration
 GEMINI_API_KEY=your_google_generative_ai_key
 STORAGE_PATH=storage
 USE_CELERY=false
+REDIS_URL=redis://localhost:6379
 ```
 
 **Get your API Key:**
@@ -179,10 +181,10 @@ VITE_API_URL=http://localhost:8000
 
 ---
 
-## 📚 Project Structure
+## Project Structure
 
 ```
-LectureIq/
+LectureIQ/
 ├── backend/
 │   ├── app/
 │   │   ├── main.py           # FastAPI app + /api/upload endpoint
@@ -191,6 +193,8 @@ LectureIq/
 │   ├── storage/
 │   │   └── uploads/          # Temp files (auto-cleaned)
 │   ├── requirements.txt       # Python dependencies
+│   ├── Dockerfile            # Container configuration
+│   ├── entrypoint.sh         # Container startup script
 │   ├── .env.example          # Template (safe to commit)
 │   └── .env                  # Your secrets (git-ignored)
 │
@@ -199,17 +203,25 @@ LectureIq/
 │   │   ├── pages/
 │   │   │   ├── Home.tsx           # Landing
 │   │   │   ├── Lecture.tsx        # Study view
-│   │   │   ├── MyLectures.tsx     # Library
+│   │   │   ├── MyLectures.tsx     # Lecture library
+│   │   │   ├── Features.tsx
 │   │   │   ├── Docs.tsx
-│   │   │   └── Features.tsx
+│   │   │   ├── Terms.tsx
+│   │   │   ├── Privacy.tsx
+│   │   │   └── NotFound.tsx
 │   │   ├── components/
-│   │   │   ├── UploadForm.tsx     # Video upload
-│   │   │   ├── Navbar.tsx
+│   │   │   ├── UploadForm.tsx     # Video upload form
+│   │   │   ├── Navbar.tsx         # Navigation
+│   │   │   ├── Button.tsx
+│   │   │   ├── Card.tsx
 │   │   │   └── ...
 │   │   ├── utils/
-│   │   │   └── db.ts             # IndexedDB layer
+│   │   │   ├── db.ts             # IndexedDB layer
+│   │   │   └── validation.ts
 │   │   ├── api/
 │   │   │   └── client.ts         # API calls
+│   │   ├── store/
+│   │   │   └── lectureStore.ts   # Zustand state
 │   │   ├── App.tsx
 │   │   └── main.tsx
 │   ├── vite.config.ts
@@ -218,28 +230,28 @@ LectureIq/
 │   ├── .env.example              # Template (safe to commit)
 │   └── .env.local               # Your config (git-ignored)
 │
-├── mock material/               # Test data
-│   ├── Video.mp4               # Sample video
-│   ├── Transcript.txt
-│   └── Quiz.txt
-│
-├── launch.ps1                  # 🚀 Quick launcher script
-├── START_HERE.md               # Detailed setup guide
-├── GITHUB_SECURITY_CHECKLIST.md
+├── launch.ps1                  # Quick launcher script
 ├── README.md
 └── .gitignore                  # Protects .env files
 ```
 
 
-## 🚀 Deployment
+## Deployment
 
 ### Local Development
 ```bash
 .\launch.ps1
 ```
 
+### Railway Deployment
+1. Push to GitHub
+2. Connect repository to Railway
+3. Set environment variables (GEMINI_API_KEY, etc.)
+4. Railway automatically builds and deploys using the Dockerfile
 
-## 🤝 Contributing
+---
+
+## Contributing
 
 1. Create feature branch
 2. Make changes
@@ -248,18 +260,19 @@ LectureIq/
 
 ---
 
-## 🎓 About LectureIQ
+## About LectureIQ
 
 Transform your lecture workflow with AI-powered study materials. Upload once, study smarter.
 
-**Key Stats:**
-- functional pipeline 
-- Production ready + auto-deployment support
-- Security-first with environment protection
-- Tested with real videos + Whisper transcription
-- Gemini-powered content generation
+**Key Features:**
+- Full-stack AI pipeline for lecture processing
+- Production-ready with auto-deployment support
+- Secure configuration management
+- Tested with real videos and transcription
+- Gemini-powered intelligent content generation
+- Browser-based local storage (no server database)
 
 
 ---
 
-**Built with ❤️ using PyAV, Whisper, and Google Gemini API**
+**Built with FastAPI, React, PyAV, Whisper, and Google Gemini API**
