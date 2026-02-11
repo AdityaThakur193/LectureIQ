@@ -50,6 +50,18 @@ export default function Home() {
     }
   }, [isShowingDemo]);
 
+  // Prevent body scroll when modal is open
+  useEffect(() => {
+    if (isShowingDemo) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isShowingDemo]);
+
   return (
     <div className="bg-slate-50 overflow-hidden">
       <style>{`
@@ -150,10 +162,13 @@ export default function Home() {
 
               {isShowingDemo && (
                 <div
-                  className="fixed inset-0 z-50 flex items-start justify-center bg-slate-900/70 backdrop-blur-md p-4 pt-24"
+                  className="fixed inset-0 flex items-start justify-center p-4 pt-24"
                   onClick={() => setIsShowingDemo(false)}
                   style={{
                     animation: "fadeIn 0.2s ease-out",
+                    zIndex: 9999,
+                    backgroundColor: "rgba(0, 0, 0, 0.8)",
+                    backdropFilter: "blur(4px)",
                   }}
                 >
                   <div
@@ -161,6 +176,8 @@ export default function Home() {
                     style={{
                       animation: "slideInUp 0.3s ease-out",
                       boxShadow: "0 25px 50px -12px rgba(26, 31, 58, 0.2)",
+                      position: "relative",
+                      zIndex: 10000,
                     }}
                     onClick={(event) => event.stopPropagation()}
                   >
