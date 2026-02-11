@@ -1,3 +1,5 @@
+/// <reference types="vite/client" />
+
 import { lectureDB, type Lecture } from '../utils/db'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'

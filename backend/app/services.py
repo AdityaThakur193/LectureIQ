@@ -13,14 +13,14 @@ import numpy as np
 # Load environment variables
 load_dotenv()
 
-# Try to import local Whisper
+# Try to import faster-whisper
 try:
-    import whisper
+    from faster_whisper import WhisperModel
     WHISPER_AVAILABLE = True
 except ImportError:
     WHISPER_AVAILABLE = False
-    print("⚠️  Warning: openai-whisper not installed. Will use mock transcription.")
-    print("   Install with: pip install openai-whisper")
+    print("⚠️  Warning: faster-whisper not installed. Will use mock transcription.")
+    print("   Install with: pip install faster-whisper")
 
 # Try to import soundfile for audio loading
 try:
@@ -43,7 +43,7 @@ class AudioProcessor:
     @staticmethod
     def extract_audio_from_video(video_path: str, output_audio_path: str) -> bool:
         """
-        Extract audio from video file using PyAV (includes embedded ffmpeg)
+        Extract audio from video file using moviepy
         
         Args:
             video_path: Path to video file
@@ -53,58 +53,22 @@ class AudioProcessor:
             True if successful, False otherwise
         """
         try:
-            import av
-            import soundfile as sf
+            from moviepy.editor import VideoFileClip
             
             print(f"   Opening video: {video_path}")
-            container = av.open(video_path)
+            video = VideoFileClip(video_path)
             
-            # Find audio stream
-            audio_stream = None
-            for stream in container.streams:
-                if stream.type == 'audio':
-                    audio_stream = stream
-                    break
-            
-            if audio_stream is None:
-                print(f"❌ No audio stream found in video")
+            if video.audio is None:
+                print(f"❌ No audio track found in video")
                 return False
             
-            print(f"   Extracting audio (sample rate: {audio_stream.sample_rate} Hz)...")
+            print(f"   Extracting audio...")
+            video.audio.write_audiofile(output_audio_path, codec='pcm_s16le', fps=16000, logger=None)
+            video.close()
             
-            # Decode and collect audio frames
-            audio_frames = []
-            for frame in container.decode(audio_stream):
-                audio_frames.append(frame.to_ndarray())
-            
-            # Concatenate all frames
-            if not audio_frames:
-                print(f"❌ No audio frames decoded")
-                return False
-            
-            import numpy as np
-            audio_data = np.concatenate(audio_frames, axis=1)
-            
-            # Transpose if needed (PyAV might return channels first)
-            if audio_data.shape[0] < audio_data.shape[1]:
-                audio_data = audio_data.T
-            
-            # Convert to mono if stereo
-            if audio_data.ndim > 1 and audio_data.shape[1] > 1:
-                print(f"   Converting stereo to mono...")
-                audio_data = np.mean(audio_data, axis=1)
-            elif audio_data.ndim > 1:
-                audio_data = audio_data.squeeze()
-            
-            # Normalize dtype
-            audio_data = audio_data.astype(np.float32)
-            
-            print(f"   Saving to WAV: {output_audio_path}")
-            sf.write(output_audio_path, audio_data, audio_stream.sample_rate)
-            
-            print(f"✅ Audio extracted successfully")
+            print(f"✅ Audio extracted successfully to {output_audio_path}")
             return True
-        
+            
         except Exception as e:
             print(f"❌ Error extracting audio: {str(e)}")
             import traceback
@@ -165,24 +129,29 @@ class TranscriptionService:
                 num_samples = int(len(audio_data) * 16000 / sample_rate)
                 audio_data = signal.resample(audio_data, num_samples).astype(np.float32)
             
-            # Load model
+            # Load model with faster-whisper
             print(f"   Loading Whisper model: {model_size}...")
-            model = whisper.load_model(model_size)
+            model = WhisperModel(model_size, device="cpu", compute_type="int8")
             
-            # Transcribe by passing audio data directly (no ffmpeg needed!)
+            # Transcribe by passing audio data directly
             print(f"   Transcribing (this may take a few minutes)...")
             
-            # Use Whisper's pad_or_trim to normalize audio
-            audio_data = whisper.audio.pad_or_trim(audio_data)
+            # Save audio data temporarily for faster-whisper
+            import tempfile
+            with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp_file:
+                tmp_audio_path = tmp_file.name
+                sf.write(tmp_audio_path, audio_data, 16000)
             
-            # Convert to mel spectrogram directly
-            mel = whisper.audio.log_mel_spectrogram(audio_data).to(model.device)
-            
-            # Run inference
-            options = whisper.DecodingOptions(language="en", fp16=False)
-            result = whisper.decode(model, mel, options)
-            
-            text = result.text.strip()
+            try:
+                # Transcribe with faster-whisper
+                segments, info = model.transcribe(tmp_audio_path, language="en")
+                
+                # Collect all segments
+                text = " ".join([segment.text for segment in segments]).strip()
+            finally:
+                # Clean up temp file
+                if os.path.exists(tmp_audio_path):
+                    os.unlink(tmp_audio_path)
             
             if not text:
                 print("❌ Transcription returned empty text")

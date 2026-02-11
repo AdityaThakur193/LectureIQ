@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { BookOpen, Zap, CheckSquare, Lightbulb, Brain, Sparkles } from 'lucide-react'
+import { BookOpen, Zap, CheckSquare, Lightbulb, Brain, Sparkles, Target } from 'lucide-react'
 
 const BrandColors = {
   navy: '#362c5d',
@@ -17,8 +17,9 @@ export default function StudyPackShowcase() {
         className="absolute -top-6 right-4 inline-flex items-center gap-2 px-4 py-2 rounded-full shadow-lg backdrop-blur-sm z-10"
         style={{ backgroundColor: BrandColors.coral + '20', border: `1px solid ${BrandColors.coral}40` }}
       >
+        <Sparkles className="w-4 h-4" style={{ color: BrandColors.coral }} />
         <span className="text-xs font-semibold" style={{ color: BrandColors.coral }}>
-          ✨ AI-Generated Study Pack
+          AI-Generated Study Pack
         </span>
       </div>
 
@@ -57,7 +58,7 @@ export default function StudyPackShowcase() {
           </div>
         </div>
 
-        <p className="text-xs text-slate-500 italic">⚡ Skim a 60-min lecture in ~5 min</p>
+        <p className="text-xs text-slate-500 italic flex items-center gap-1"><Zap className="w-3 h-3" /> Skim a 60-min lecture in ~5 min</p>
       </div>
 
       {/* FLASHCARDS CARD */}
@@ -134,7 +135,7 @@ export default function StudyPackShowcase() {
           </div>
         </div>
 
-        <p className="text-xs text-slate-500 italic">🎯 Perfect for spaced repetition</p>
+        <p className="text-xs text-slate-500 italic flex items-center gap-1"><Target className="w-3 h-3" /> Perfect for spaced repetition</p>
       </div>
 
       {/* QUIZ CARD */}
@@ -175,7 +176,7 @@ export default function StudyPackShowcase() {
           </div>
         </div>
 
-        <p className="text-xs text-slate-500 italic mt-4">⚡ Instant feedback on every question</p>
+        <p className="text-xs text-slate-500 italic mt-4 flex items-center gap-1"><Zap className="w-3 h-3" /> Instant feedback on every question</p>
       </div>
     </div>
   )

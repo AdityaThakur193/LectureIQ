@@ -1,58 +1,77 @@
 export default function Footer() {
   return (
-    <>
-      <style>{`
-        .bg-brand-navy { background-color: #362c5d; }
-        .text-brand-coral { color: #c84449; }
-        footer { border-color: rgba(200, 68, 73, 0.2); }
-      `}</style>
-      <footer className="bg-brand-navy text-white mt-24" style={{borderTopColor: 'rgba(200, 68, 73, 0.2)'}}>
+    <footer className="bg-brand-navy text-white mt-24 border-t border-brand-navy">
       <div className="container mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
-          {/* Brand */}
-          <div>
-            <img src="/logo.png" alt="LectureIQ" className="h-10 w-auto mb-4" />
-            <p className="text-slate-300 text-sm leading-relaxed">
-              Transform how you learn. AI-powered notes, flashcards, and quizzes from your lectures.
+        {/* Main footer content */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16 mb-16">
+          {/* Brand - Large column */}
+          <div className="lg:col-span-2">
+            <img src="/logo.png" alt="LectureIQ" className="h-10 w-auto mb-6" />
+            <p className="text-slate-400 text-base leading-relaxed max-w-sm">
+              Learning shouldn't feel like work. LectureIQ turns your lecture recordings into actual study materials—in minutes, not hours.
             </p>
+            <div className="flex gap-6 mt-8">
+              <a href="https://github.com/AdityaThakur193" target="_blank" rel="noreferrer" className="text-slate-400 hover:text-brand-emerald transition-colors text-sm font-medium">
+                GitHub
+              </a>
+              <a href="https://www.linkedin.com/in/aditya-thakur193" target="_blank" rel="noreferrer" className="text-slate-400 hover:text-brand-emerald transition-colors text-sm font-medium">
+                LinkedIn
+              </a>
+            </div>
           </div>
 
-          {/* Product Links */}
+          {/* Product */}
           <div>
-            <h4 className="font-semibold text-white mb-4">Product</h4>
-            <ul className="space-y-2 text-sm">
-              <li><a href="/features" className="text-slate-300 hover:text-brand-coral transition">Features</a></li>
-              <li><a href="/docs" className="text-slate-300 hover:text-brand-coral transition">Documentation</a></li>
-              <li><a href="/my-lectures" className="text-slate-300 hover:text-brand-coral transition">Dashboard</a></li>
-              <li><a href="#" className="text-slate-300 hover:text-brand-coral transition">API</a></li>
+            <h4 className="font-semibold text-white mb-6 text-sm uppercase tracking-wide opacity-80">Product</h4>
+            <ul className="space-y-3 text-sm">
+              <li>
+                <a href="/features" className="text-slate-400 hover:text-brand-emerald transition-colors">
+                  Features
+                </a>
+              </li>
+              <li>
+                <a href="/docs" className="text-slate-400 hover:text-brand-emerald transition-colors">
+                  Docs
+                </a>
+              </li>
+              <li>
+                <a href="/my-lectures" className="text-slate-400 hover:text-brand-emerald transition-colors">
+                  Dashboard
+                </a>
+              </li>
             </ul>
           </div>
 
-          {/* Legal Links */}
+          {/* Legal */}
           <div>
-            <h4 className="font-semibold text-white mb-4">Legal</h4>
-            <ul className="space-y-2 text-sm">
-              <li><a href="#" className="text-slate-300 hover:text-brand-coral transition">Privacy</a></li>
-              <li><a href="#" className="text-slate-300 hover:text-brand-coral transition">Terms</a></li>
-              <li><a href="#" className="text-slate-300 hover:text-brand-coral transition">Contact</a></li>
-              <li><a href="#" className="text-slate-300 hover:text-brand-coral transition">Status</a></li>
+            <h4 className="font-semibold text-white mb-6 text-sm uppercase tracking-wide opacity-80">Legal</h4>
+            <ul className="space-y-3 text-sm">
+              <li>
+                <a href="/privacy" className="text-slate-400 hover:text-brand-emerald transition-colors">
+                  Privacy
+                </a>
+              </li>
+              <li>
+                <a href="/terms" className="text-slate-400 hover:text-brand-emerald transition-colors">
+                  Terms
+                </a>
+              </li>
             </ul>
           </div>
         </div>
 
-        {/* Divider */}
+        {/* Footer bottom - unique layout, not centered */}
         <div className="border-t border-slate-700 pt-8">
-          <div className="flex flex-col md:flex-row items-center justify-between">
-            <p className="text-slate-400 text-sm">© 2026 LectureIQ. All rights reserved.</p>
-            <div className="flex gap-6 mt-4 md:mt-0">
-              <a href="#" className="text-slate-400 hover:text-brand-coral transition text-sm">Twitter</a>
-              <a href="#" className="text-slate-400 hover:text-brand-coral transition text-sm">GitHub</a>
-              <a href="#" className="text-slate-400 hover:text-brand-coral transition text-sm">Discord</a>
-            </div>
+          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8">
+            <p className="text-slate-500 text-sm">
+              © 2026 LectureIQ. Learning, reimagined.
+            </p>
+            <p className="text-slate-600 text-xs max-w-md">
+              Built by students, for students. No corporate bloat. Just tools that actually help you learn smarter.
+            </p>
           </div>
         </div>
       </div>
     </footer>
-    </>
   )
 }

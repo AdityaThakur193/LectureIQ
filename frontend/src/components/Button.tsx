@@ -2,7 +2,7 @@ import { ReactNode } from 'react'
 
 interface ButtonProps {
   children: ReactNode
-  variant?: 'primary' | 'secondary' | 'ghost'
+  variant?: 'primary' | 'secondary' | 'minimal'
   size?: 'sm' | 'md' | 'lg'
   disabled?: boolean
   onClick?: () => void
@@ -19,18 +19,18 @@ export default function Button({
   className = '',
   type = 'button',
 }: ButtonProps) {
-  const baseStyles = 'font-semibold rounded-lg transition-all transform inline-flex items-center justify-center gap-2'
+  const baseStyles = 'font-semibold rounded transition-all duration-200 inline-flex items-center justify-center gap-2'
   
   const variants = {
-    primary: 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white hover:from-indigo-700 hover:to-violet-700 hover:shadow-lg disabled:bg-slate-300 ',
-    secondary: 'border-2 border-indigo-600 text-indigo-600 hover:bg-indigo-50 disabled:border-slate-300 disabled:text-slate-400',
-    ghost: 'text-slate-600 hover:text-indigo-600 hover:bg-slate-100 disabled:text-slate-300',
+    primary: 'bg-brand-navy text-white hover:bg-opacity-90 active:scale-95 disabled:bg-slate-400 disabled:cursor-not-allowed shadow-sm hover:shadow-md',
+    secondary: 'border-2 border-brand-navy text-brand-navy hover:bg-brand-navy hover:text-white active:scale-95 disabled:border-slate-300 disabled:text-slate-400',
+    minimal: 'text-brand-navy hover:bg-brand-emerald hover:text-white disabled:text-slate-400 active:scale-95 transition-colors duration-150',
   }
 
   const sizes = {
-    sm: 'px-3 py-2 text-sm',
-    md: 'px-6 py-2.5 text-base',
-    lg: 'px-8 py-4 text-lg',
+    sm: 'px-3 py-1.5 text-sm',
+    md: 'px-5 py-2.5 text-base',
+    lg: 'px-7 py-3.5 text-lg',
   }
 
   return (
@@ -38,7 +38,7 @@ export default function Button({
       type={type}
       disabled={disabled}
       onClick={onClick}
-      className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${disabled ? 'cursor-not-allowed' : ''} ${className}`}
+      className={`${baseStyles} ${variants[variant]} ${sizes[size]} ${className}`}
     >
       {children}
     </button>

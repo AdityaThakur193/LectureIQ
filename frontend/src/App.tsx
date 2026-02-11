@@ -4,6 +4,8 @@ import Lecture from './pages/Lecture'
 import { MyLectures } from './pages/MyLectures'
 import Docs from './pages/Docs'
 import Features from './pages/Features'
+import Privacy from './pages/Privacy'
+import Terms from './pages/Terms'
 import NotFound from './pages/NotFound'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
@@ -20,6 +22,8 @@ export default function App() {
             <Route path="/lectures/:id" element={<Lecture />} />
             <Route path="/docs" element={<Docs />} />
             <Route path="/features" element={<Features />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </main>

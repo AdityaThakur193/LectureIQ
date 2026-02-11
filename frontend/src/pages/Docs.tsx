@@ -16,12 +16,12 @@ export default function Docs() {
         {
           title: 'Quick Start',
           desc: 'Create your first study pack',
-          details: 'Upload an audio file or transcript, let our AI process it, and receive comprehensive study materials including notes, flashcards, and a quiz within minutes.'
+          details: 'Upload an audio file (MP3, WAV, M4A) or paste a transcript. Processing takes 2-5 minutes. You\'ll receive four interactive sections: formatted Notes, flippable Flashcards, a timed Quiz with shuffled options (A-D), and an interactive Key Terms glossary.'
         },
         {
           title: 'Dashboard Tour',
           desc: 'Navigate the interface',
-          details: 'Your dashboard displays all your lectures and study packs. Click any lecture to access notes, flashcards, and quizzes. Use the search bar to find specific content quickly.'
+          details: 'Your dashboard displays all lectures with search functionality. View statistics showing total lectures, completed count, flashcards generated, and quizzes taken. Export your entire library as JSON backup or import from previous exports. Click any lecture card to access all study materials.'
         },
       ]
     },
@@ -36,12 +36,12 @@ export default function Docs() {
         {
           title: 'AI Processing',
           desc: 'How we generate study materials',
-          details: 'Our advanced AI analyzes lecture content to identify key concepts, create concise notes, generate flashcard pairs, and formulate quiz questions automatically.'
+          details: 'Our AI analyzes lecture content to extract key concepts and generate four types of study materials: (1) Structured notes with markdown formatting, (2) Question-answer flashcard pairs, (3) Multiple-choice quiz questions with 4 options each, (4) Key terms with definitions. Processing completes in 2-5 minutes depending on lecture length.'
         },
         {
           title: 'Study Tools',
-          desc: 'Notes, flashcards, and quizzes',
-          details: 'Access organized notes with section headers, flip through interactive flashcards with spaced repetition support, and test your knowledge with comprehensive quizzes.'
+          desc: 'Four interactive learning sections',
+          details: 'NOTES: Markdown-formatted with bold headings, italic emphasis, and bullet points. Export as comprehensive PDF study guide.\n\nFLASHCARDS: Flip cards to reveal answers. Export to CSV format compatible with Anki and other spaced-repetition apps.\n\nQUIZ: Multiple-choice with options A-D (shuffled per session). Timer tracks your progress. Navigation locked during active quiz to prevent cheating. View detailed results with correct/incorrect breakdown.\n\nKEY TERMS: Interactive glossary extracted from lecture notes. Click term cards to reveal definitions.'
         },
       ]
     },
@@ -49,19 +49,19 @@ export default function Docs() {
       icon: Code,
       content: [
         {
-          title: 'Authentication',
-          desc: 'Secure your requests',
-          details: 'Use Bearer token authentication. Include your API key in the Authorization header: Authorization: Bearer YOUR_API_KEY'
+          title: 'Data Storage',
+          desc: 'Local-first architecture',
+          details: 'LectureIQ stores all data locally in your browser using IndexedDB. Your lectures, notes, flashcards, and quiz data never leave your device. No account or authentication required—your privacy is built-in.'
         },
         {
-          title: 'Endpoints',
-          desc: 'Available API routes',
-          details: 'POST /api/lectures - Create new lecture\nGET /api/lectures/:id - Retrieve lecture\nDELETE /api/lectures/:id - Delete lecture\nGET /api/lectures - List all lectures'
+          title: 'Export Formats',
+          desc: 'Take your data anywhere',
+          details: 'PDF Export: Comprehensive study guide with all sections (Notes, Flashcards, Quiz, Key Terms) in a formatted layout with headers and callouts.\n\nCSV Export: Flashcards in two-column format (Question, Answer) compatible with Anki, Quizlet, and other flashcard apps.\n\nJSON Backup: Your entire lecture library can be exported and imported for data portability between devices.'
         },
         {
-          title: 'Webhooks',
-          desc: 'Real-time event notifications',
-          details: 'Subscribe to events like lecture_processed, quiz_completed, and flashcard_generated. Configure webhook endpoints in your dashboard settings.'
+          title: 'Supported File Types',
+          desc: 'Audio and text formats',
+          details: 'Audio Files: MP3, WAV, M4A up to 500MB\nText Input: Direct transcript paste (no size limit)\nProcessing: Transcription and AI analysis completed in 2-5 minutes\nOutput: Organized study materials across four interactive sections'
         },
       ]
     },
@@ -81,7 +81,7 @@ export default function Docs() {
         {
           title: 'Contact Us',
           desc: 'Get help from our team',
-          details: 'Email: contact@example.com | Chat: Available 24/7 | Phone: Contact support'
+          details: 'Email: athakur8@gitam.in | Chat: Available 24/7 '
         },
       ]
     }
@@ -169,13 +169,15 @@ export default function Docs() {
             <p className="text-slate-600 mb-8">
               Can't find what you're looking for? Our support team is here to help.
             </p>
-            <button 
+            <a
+              href="https://mail.google.com/mail/?view=cm&fs=1&to=athakur8@gitam.in&su=LectureIQ%20Support&body=Hi%20LectureIQ%20team%2C%0A%0A"
+              target="_blank"
               className="inline-flex items-center gap-2 px-8 py-3 text-white font-semibold rounded-lg hover:opacity-90 transition transform hover:-translate-y-0.5 shadow-md"
-              style={{backgroundColor: '#c84449'}}
+              style={{ backgroundColor: '#c84449' }}
             >
               Contact Support
               <ArrowRight className="w-5 h-5" />
-            </button>
+            </a>
           </div>
         </div>
       </div>
