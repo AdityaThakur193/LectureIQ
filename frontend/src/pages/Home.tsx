@@ -95,7 +95,7 @@ export default function Home() {
         <div className="container mx-auto px-6 relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-16 lg:gap-12 items-start">
             {/* Left: Headline - Left-aligned, not centered */}
-            <div className="lg:col-span-2 max-w-2xl">
+            <div className=" max-w-2xl">
               <div className="mb-6 flex items-center gap-3">
                 <div className="w-12 h-1 bg-brand-navy rounded-full" />
                 <span className="text-xs font-semibold tracking-widest uppercase text-brand-navy opacity-70">
