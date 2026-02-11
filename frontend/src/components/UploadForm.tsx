@@ -1,35 +1,53 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Upload, FileText, Lightbulb, CheckCircle2 } from "lucide-react";
-import { uploadAndProcessLecture } from "../api/client";
+import { Upload, FileText, Lightbulb, CheckCircle2, Server, Cloud, Cpu } from "lucide-react";
+import { uploadAndProcessLecture, type ProgressCallback } from "../api/client";
 import { validateUploadForm } from "../utils/validation";
+
+type UploadStage = 'idle' | 'waking' | 'uploading' | 'processing' | 'complete'
 
 export default function UploadForm() {
   const navigate = useNavigate();
   const [video, setVideo] = useState<File | null>(null);
   const [slides, setSlides] = useState<File | null>(null);
   const [title, setTitle] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+  const [uploadStage, setUploadStage] = useState<UploadStage>('idle');
   const [error, setError] = useState<string | null>(null);
-  const [delayCountdown, setDelayCountdown] = useState(0);
-  const PROCESS_DELAY = 2; // Delay in seconds (change this value to adjust the delay)
-
-  // Handle countdown timer
-  useEffect(() => {
-    if (delayCountdown > 0) {
-      const timer = setTimeout(
-        () => setDelayCountdown(delayCountdown - 1),
-        1000,
-      );
-      return () => clearTimeout(timer);
-    }
-  }, [delayCountdown]);
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + " B";
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
     return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   };
+
+  const getStageMessage = (): { icon: typeof Server; text: string; subtext: string } => {
+    switch (uploadStage) {
+      case 'waking':
+        return {
+          icon: Server,
+          text: 'Connecting to server...',
+          subtext: 'Waking up the processing engine'
+        }
+      case 'uploading':
+        return {
+          icon: Cloud,
+          text: 'Uploading your files...',
+          subtext: 'This may take a moment depending on file size'
+        }
+      case 'processing':
+        return {
+          icon: Cpu,
+          text: 'Processing your lecture...',
+          subtext: 'Generating notes, flashcards, and quiz'
+        }
+      default:
+        return {
+          icon: Upload,
+          text: 'Ready to upload',
+          subtext: ''
+        }
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -43,12 +61,11 @@ export default function UploadForm() {
 
     if (!video || !title) return;
 
-    setIsLoading(true);
     setError(null);
-    setDelayCountdown(PROCESS_DELAY);
 
-    // Wait for the delay
-    await new Promise((resolve) => setTimeout(resolve, PROCESS_DELAY * 1000));
+    const progressCallback: ProgressCallback = (stage) => {
+      setUploadStage(stage);
+    }
 
     try {
       // Upload and process lecture (saves to IndexedDB automatically)
@@ -56,20 +73,23 @@ export default function UploadForm() {
         title,
         video,
         slides || undefined,
+        progressCallback
       );
 
+      setUploadStage('complete');
+      
       // Navigate to the lecture page
       navigate(`/lectures/${lecture.id}`);
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Upload failed";
       setError(errorMessage);
-
-    } finally {
-      setIsLoading(false);
-      setDelayCountdown(0);
+      setUploadStage('idle');
     }
   };
+
+  const isLoading = uploadStage !== 'idle' && uploadStage !== 'complete';
+  const StageIcon = getStageMessage().icon;
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -91,6 +111,7 @@ export default function UploadForm() {
               onChange={(e) => setTitle(e.target.value)}
               className="w-full px-4 py-3 border border-slate-300 rounded text-slate-900 placeholder-slate-400 focus:border-brand-navy focus:ring-2 focus:ring-brand-navy/20 focus:outline-none transition-all"
               required
+              disabled={isLoading}
             />
           </div>
 
@@ -115,6 +136,7 @@ export default function UploadForm() {
                 onChange={(e) => setVideo(e.target.files?.[0] ?? null)}
                 className="hidden"
                 id="video-upload"
+                disabled={isLoading}
               />
               <label
                 htmlFor="video-upload"
@@ -161,6 +183,7 @@ export default function UploadForm() {
                 onChange={(e) => setSlides(e.target.files?.[0] ?? null)}
                 className="hidden"
                 id="slides-upload"
+                disabled={isLoading}
               />
               <label
                 htmlFor="slides-upload"
@@ -202,6 +225,52 @@ export default function UploadForm() {
             </div>
           </div>
 
+          {/* Loading Progress */}
+          {isLoading && (
+            <div className="p-6 rounded-lg bg-gradient-to-r from-brand-emerald/10 to-brand-navy/10 border border-brand-emerald/20">
+              <div className="flex items-center gap-4">
+                <div className="relative">
+                  <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center">
+                    <StageIcon className="w-6 h-6 text-brand-emerald animate-pulse" />
+                  </div>
+                  <div className="absolute inset-0">
+                    <svg className="w-12 h-12 -rotate-90">
+                      <circle
+                        cx="24"
+                        cy="24"
+                        r="20"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        fill="none"
+                        className="text-brand-emerald/30"
+                      />
+                      <circle
+                        cx="24"
+                        cy="24"
+                        r="20"
+                        stroke="currentColor"
+                        strokeWidth="3"
+                        fill="none"
+                        strokeDasharray="125.6"
+                        strokeDashoffset="31.4"
+                        className="text-brand-emerald animate-spin"
+                        style={{ animationDuration: '2s' }}
+                      />
+                    </svg>
+                  </div>
+                </div>
+                <div className="flex-1">
+                  <p className="text-base font-semibold text-brand-navy mb-1">
+                    {getStageMessage().text}
+                  </p>
+                  <p className="text-sm text-slate-600">
+                    {getStageMessage().subtext}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Error Alert */}
           {error && (
             <div className="p-4 rounded bg-red-50 border border-red-200">
@@ -233,7 +302,7 @@ export default function UploadForm() {
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   />
                 </svg>
-                <span>Processing your lecture...</span>
+                <span>Processing...</span>
               </>
             ) : (
               <>

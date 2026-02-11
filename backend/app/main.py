@@ -48,6 +48,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/health")
+async def health_check():
+    """Health check endpoint to wake up sleeping server."""
+    return {"status": "ok", "message": "Server is awake"}
+
 STORAGE_DIR = Path(__file__).parent.parent / "storage"
 UPLOAD_DIR = STORAGE_DIR / "uploads"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
