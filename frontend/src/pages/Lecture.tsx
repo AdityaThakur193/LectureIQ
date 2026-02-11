@@ -373,13 +373,36 @@ export default function Lecture() {
   return (
     <>
       <style>{`
-        .tab-active { border-bottom: 3px solid #c84449; background-color: rgba(200, 68, 73, 0.05); }
-        .option-selected { background-color: rgba(200, 68, 73, 0.1); border-color: #c84449; }
+        /* Tab active state indicator */
+        .tab-active { 
+          border-bottom: 3px solid #c84449; 
+          background-color: rgba(200, 68, 73, 0.05); 
+        }
+        
+        /* Quiz option selected state */
+        .option-selected { 
+          background-color: rgba(200, 68, 73, 0.1); 
+          border-color: #c84449; 
+        }
+        
+        /* Flashcard flip animation */
         .flip-card { perspective: 1000px; }
-        .flip-card-inner { transition: transform 0.6s; transform-style: preserve-3d; }
+        .flip-card-inner { 
+          transition: transform 0.6s; 
+          transform-style: preserve-3d; 
+        }
         .flip-card-inner.flipped { transform: rotateY(180deg); }
         .flip-card-front, .flip-card-back { backface-visibility: hidden; }
         .flip-card-back { transform: rotateY(180deg); }
+        
+        /* Hide scrollbar for horizontal tab navigation on mobile */
+        .overflow-x-auto::-webkit-scrollbar {
+          display: none;
+        }
+        .overflow-x-auto {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
       `}</style>
 
       {isLoading ? (
@@ -401,90 +424,109 @@ export default function Lecture() {
         </div>
       ) : (
         <div className="bg-white min-h-screen">
-          {/* HEADER */}
+          {/* HEADER - Mobile Optimized */}
           <div className="border-b border-slate-200" style={{ backgroundColor: BrandColors['navy-light'] }}>
-            <div className="container mx-auto px-6 py-12">
+            <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 md:py-12">
+              {/* Back Navigation - Min 44px tap target */}
               <Link
                 to="/my-lectures"
-                className={`inline-flex items-center gap-2 mb-8 ${hasQuizStarted && !isShowingResults ? 'pointer-events-none opacity-50' : ''}`}
+                className={`inline-flex items-center gap-2 mb-6 sm:mb-8 min-h-[44px] ${hasQuizStarted && !isShowingResults ? 'pointer-events-none opacity-50' : ''}`}
                 style={{ color: BrandColors.navy }}
                 aria-disabled={hasQuizStarted && !isShowingResults}
               >
-                <ArrowLeft className="w-4 h-4" />
-                <span className="text-sm font-medium">Back to Lectures</span>
+                <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="text-sm sm:text-base font-medium">Back to Lectures</span>
               </Link>
 
-              <div className="flex items-start justify-between gap-6 mb-6">
+              {/* Title and Export - Stacked on mobile */}
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:gap-6 mb-6">
                 <div className="flex-1">
-                  <h1 className="text-5xl lg:text-6xl font-bold mb-4 leading-tight" style={{ color: BrandColors.navy }}>
+                  {/* Title - Responsive sizing: 24px mobile, 32px tablet, 48px desktop */}
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight break-words" style={{ color: BrandColors.navy }}>
                     {lecture.title}
                   </h1>
-                  <div className="flex flex-wrap items-center gap-4 text-sm text-slate-600">
-                    <span>ID: {id}</span>
+                  {/* Metadata - Better wrapping on mobile */}
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-slate-600">
+                    {/* Truncated ID on mobile, full on desktop */}
+                    <span className="flex items-center gap-1">
+                      <span className="hidden sm:inline">ID:</span>
+                      <span className="sm:hidden font-mono text-[10px] bg-slate-100 px-2 py-1 rounded">
+                        {id?.slice(0, 8)}...
+                      </span>
+                      <span className="hidden sm:inline font-mono text-xs break-all">{id}</span>
+                    </span>
+                    <span className="hidden sm:inline">•</span>
+                    <span className="whitespace-nowrap">{lecture.flashcards?.length ?? 0} flashcards</span>
                     <span>•</span>
-                    <span>{lecture.flashcards?.length ?? 0} flashcards</span>
-                    <span>•</span>
-                    <span>{lecture.quiz?.length ?? 0} quizzes</span>
+                    <span className="whitespace-nowrap">{lecture.quiz?.length ?? 0} quizzes</span>
                   </div>
                 </div>
+                {/* Export Button - Full width on small screens, auto on larger */}
                 <button
                   onClick={() => exportLecturePdf(lecture, keyTerms)}
                   disabled={hasQuizStarted && !isShowingResults}
-                  className="flex items-center gap-2 px-6 py-3 text-white font-semibold rounded-2xl hover:opacity-90 transition shadow-md hover:shadow-lg flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 sm:px-6 py-3 min-h-[44px] text-white text-sm sm:text-base font-semibold rounded-lg sm:rounded-2xl hover:opacity-90 transition shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ backgroundColor: BrandColors.coral }}
                 >
-                  <Download className="w-5 h-5" />
+                  <Download className="w-4 h-4 sm:w-5 sm:h-5" />
                   <span>Export</span>
                 </button>
-                  disabled={hasQuizStarted && !isShowingResults}
               </div>
             </div>
           </div>
 
-          {/* TAB NAVIGATION */}
-          <div className="border-b border-slate-200 sticky top-0 z-40 bg-white">
-            <div className="container mx-auto px-6">
-              <div className="flex gap-8">
+          {/* TAB NAVIGATION - Horizontal scroll on mobile */}
+          <div className="border-b border-slate-200 sticky top-0 z-40 bg-white shadow-sm">
+            <div className="container mx-auto px-4 sm:px-6">
+              {/* Scrollable tab container with proper touch targets */}
+              <div className="flex gap-4 sm:gap-6 md:gap-8 overflow-x-auto scrollbar-hide pb-px">
+                {/* Notes Tab */}
                 <button
                   onClick={() => { setActiveTab('notes'); setFlipped(false); setIsShowingResults(false); }}
                   disabled={hasQuizStarted && !isShowingResults}
-                  className={`py-4 px-2 font-medium transition border-b-4 flex items-center gap-2 ${ activeTab === 'notes' ? 'tab-active' : 'border-transparent text-slate-600 hover:text-slate-900' } ${hasQuizStarted && !isShowingResults ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`py-3 sm:py-4 px-3 sm:px-4 font-medium transition border-b-4 flex items-center gap-2 whitespace-nowrap min-h-[44px] flex-shrink-0 ${ activeTab === 'notes' ? 'tab-active' : 'border-transparent text-slate-600 hover:text-slate-900' } ${hasQuizStarted && !isShowingResults ? 'opacity-50 cursor-not-allowed' : ''}`}
                   style={{ borderBottomColor: activeTab === 'notes' ? BrandColors.coral : 'transparent', color: activeTab === 'notes' ? BrandColors.navy : undefined }}
                 >
-                  <BookOpen className="w-5 h-5" />
-                  <span>Notes</span>
+                  <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="text-sm sm:text-base">Notes</span>
                 </button>
+                
+                {/* Flashcards Tab */}
                 <button
                   onClick={() => { setActiveTab('flashcards'); setFlipped(false); setIsShowingResults(false); }}
                   disabled={hasQuizStarted && !isShowingResults}
-                  className={`py-4 px-2 font-medium transition border-b-4 flex items-center gap-2 ${ activeTab === 'flashcards' ? 'tab-active' : 'border-transparent text-slate-600 hover:text-slate-900' } ${hasQuizStarted && !isShowingResults ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`py-3 sm:py-4 px-3 sm:px-4 font-medium transition border-b-4 flex items-center gap-2 whitespace-nowrap min-h-[44px] flex-shrink-0 ${ activeTab === 'flashcards' ? 'tab-active' : 'border-transparent text-slate-600 hover:text-slate-900' } ${hasQuizStarted && !isShowingResults ? 'opacity-50 cursor-not-allowed' : ''}`}
                   style={{ borderBottomColor: activeTab === 'flashcards' ? BrandColors.coral : 'transparent', color: activeTab === 'flashcards' ? BrandColors.navy : undefined }}
                 >
-                  <Zap className="w-5 h-5" />
-                  <span>Flashcards</span>
+                  <Zap className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="text-sm sm:text-base">Flashcards</span>
                   <span className="ml-1 text-xs px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: '#f3f4f6', color: '#4b5563' }}>
                     {lecture.flashcards?.length ?? 0}
                   </span>
                 </button>
+                
+                {/* Quiz Tab */}
                 <button
                   onClick={() => { setActiveTab('quiz'); setFlipped(false); }}
-                  className={`py-4 px-2 font-medium transition border-b-4 flex items-center gap-2 ${ activeTab === 'quiz' ? 'tab-active' : 'border-transparent text-slate-600 hover:text-slate-900' }`}
+                  className={`py-3 sm:py-4 px-3 sm:px-4 font-medium transition border-b-4 flex items-center gap-2 whitespace-nowrap min-h-[44px] flex-shrink-0 ${ activeTab === 'quiz' ? 'tab-active' : 'border-transparent text-slate-600 hover:text-slate-900' }`}
                   style={{ borderBottomColor: activeTab === 'quiz' ? BrandColors.coral : 'transparent', color: activeTab === 'quiz' ? BrandColors.navy : undefined }}
                 >
-                  <CheckSquare className="w-5 h-5" />
-                  <span>Quiz</span>
+                  <CheckSquare className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="text-sm sm:text-base">Quiz</span>
                   <span className="ml-1 text-xs px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: '#f3f4f6', color: '#4b5563' }}>
                     {lecture.quiz?.length ?? 0}
                   </span>
                 </button>
+                
+                {/* Key Terms Tab */}
                 <button
                   onClick={() => { setActiveTab('terms'); setFlipped(false); setIsShowingResults(false); }}
                   disabled={hasQuizStarted && !isShowingResults}
-                  className={`py-4 px-2 font-medium transition border-b-4 flex items-center gap-2 ${ activeTab === 'terms' ? 'tab-active' : 'border-transparent text-slate-600 hover:text-slate-900' } ${hasQuizStarted && !isShowingResults ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`py-3 sm:py-4 px-3 sm:px-4 font-medium transition border-b-4 flex items-center gap-2 whitespace-nowrap min-h-[44px] flex-shrink-0 ${ activeTab === 'terms' ? 'tab-active' : 'border-transparent text-slate-600 hover:text-slate-900' } ${hasQuizStarted && !isShowingResults ? 'opacity-50 cursor-not-allowed' : ''}`}
                   style={{ borderBottomColor: activeTab === 'terms' ? BrandColors.coral : 'transparent', color: activeTab === 'terms' ? BrandColors.navy : undefined }}
                 >
-                  <Tag className="w-5 h-5" />
-                  <span>Key Terms</span>
+                  <Tag className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="text-sm sm:text-base">Key Terms</span>
                   <span className="ml-1 text-xs px-2 py-0.5 rounded-full font-semibold" style={{ backgroundColor: '#f3f4f6', color: '#4b5563' }}>
                     {keyTerms.length}
                   </span>
@@ -493,25 +535,25 @@ export default function Lecture() {
             </div>
           </div>
 
-          {/* CONTENT */}
-          <div className="container mx-auto px-6 py-16">
+          {/* CONTENT - Mobile-first padding */}
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16">
             {/* NOTES TAB */}
             {activeTab === 'notes' && (
               <div className="max-w-5xl">
                 {!lecture.notes || lecture.notes.trim() === '' ? (
-                  <div className="rounded-2xl p-10 text-center" style={{ backgroundColor: '#fef3c7', borderLeft: '4px solid #f59e0b' }}>
+                  <div className="rounded-xl sm:rounded-2xl p-6 sm:p-8 md:p-10 text-center" style={{ backgroundColor: '#fef3c7', borderLeft: '4px solid #f59e0b' }}>
                     <div className="flex items-center justify-center gap-2 font-medium" style={{ color: '#92400e' }}>
                       <FileText className="w-5 h-5" />
-                      <span>No notes available</span>
+                      <span className="text-sm sm:text-base">No notes available</span>
                     </div>
-                    <p style={{ color: '#b45309' }} className="text-sm mt-1">Notes will appear once processing is complete</p>
+                    <p style={{ color: '#b45309' }} className="text-xs sm:text-sm mt-1">Notes will appear once processing is complete</p>
                   </div>
                 ) : (
-                  <div className="rounded-2xl border bg-white shadow-sm p-8 md:p-10" style={{ borderColor: 'rgba(54, 44, 93, 0.12)' }}>
-                    <div className="space-y-6">
+                  <div className="rounded-xl sm:rounded-2xl border bg-white shadow-sm p-4 sm:p-6 md:p-8 lg:p-10" style={{ borderColor: 'rgba(54, 44, 93, 0.12)' }}>
+                    <div className="space-y-4 sm:space-y-6">
                       {lecture.notes.split('\n').map((line, idx) => {
                         const trimmed = line.trim()
-                        if (!trimmed) return <div key={idx} className="h-3" />
+                        if (!trimmed) return <div key={idx} className="h-2 sm:h-3" />
 
                         const formatInline = (value: string) =>
                           value
@@ -528,47 +570,52 @@ export default function Lecture() {
                           )
                         }
 
+                        // H1 - Main title: 20px mobile, 24px tablet, 28px desktop
                         if (trimmed.startsWith('# ')) {
                           const text = formatInline(trimmed.replace('# ', ''))
                           return (
-                            <div key={idx} className="rounded-xl p-6 text-white shadow-md" style={{ backgroundColor: BrandColors.navy }}>
-                              <h1 className="text-2xl md:text-3xl font-bold tracking-tight" dangerouslySetInnerHTML={{ __html: text }} />
+                            <div key={idx} className="rounded-lg sm:rounded-xl p-4 sm:p-5 md:p-6 text-white shadow-md" style={{ backgroundColor: BrandColors.navy }}>
+                              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight" dangerouslySetInnerHTML={{ __html: text }} />
                             </div>
                           )
                         }
 
+                        // H2 - Section headings: 18px mobile, 20px tablet, 24px desktop
                         if (trimmed.startsWith('## ')) {
                           const text = formatInline(trimmed.replace('## ', ''))
                           return (
-                            <div key={idx} className="flex items-center gap-3">
-                              <div className="w-1.5 h-8 rounded-full" style={{ backgroundColor: BrandColors.coral }} />
-                              <h2 className="text-xl md:text-2xl font-semibold" style={{ color: BrandColors.navy }} dangerouslySetInnerHTML={{ __html: text }} />
+                            <div key={idx} className="flex items-center gap-2 sm:gap-3">
+                              <div className="w-1 sm:w-1.5 h-6 sm:h-8 rounded-full flex-shrink-0" style={{ backgroundColor: BrandColors.coral }} />
+                              <h2 className="text-lg sm:text-xl md:text-2xl font-semibold break-words" style={{ color: BrandColors.navy }} dangerouslySetInnerHTML={{ __html: text }} />
                             </div>
                           )
                         }
 
+                        // H3 - Subsection headings: 16px mobile, 18px desktop
                         if (trimmed.startsWith('### ')) {
                           const text = formatInline(trimmed.replace('### ', ''))
                           return (
-                            <h3 key={idx} className="text-lg font-semibold" style={{ color: BrandColors.navy }} dangerouslySetInnerHTML={{ __html: text }} />
+                            <h3 key={idx} className="text-base sm:text-lg font-semibold break-words" style={{ color: BrandColors.navy }} dangerouslySetInnerHTML={{ __html: text }} />
                           )
                         }
 
+                        // Bullet points - proper indentation and spacing
                         if (trimmed.startsWith('- ') || trimmed.startsWith('* ')) {
                           const text = formatInline(trimmed.replace(/^[-*]\s+/, ''))
                           return (
-                            <div key={idx} className="flex gap-3 ml-2">
-                              <span className="w-2.5 h-2.5 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: BrandColors.coral }} />
-                              <p className="text-slate-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: text }} />
+                            <div key={idx} className="flex gap-2 sm:gap-3 ml-1 sm:ml-2">
+                              <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full mt-1.5 sm:mt-2 flex-shrink-0" style={{ backgroundColor: BrandColors.coral }} />
+                              <p className="text-slate-700 leading-relaxed text-sm sm:text-base break-words" dangerouslySetInnerHTML={{ __html: text }} />
                             </div>
                           )
                         }
 
+                        // Regular paragraphs - proper line height and wrapping
                         const text = formatInline(trimmed)
                         return (
                           <p
                             key={idx}
-                            className="text-slate-700 leading-relaxed text-base border-l-4 pl-4"
+                            className="text-slate-700 leading-relaxed text-sm sm:text-base border-l-2 sm:border-l-4 pl-3 sm:pl-4 break-words"
                             style={{ borderColor: BrandColors.coral + '30' }}
                             dangerouslySetInnerHTML={{ __html: text }}
                           />
@@ -580,50 +627,50 @@ export default function Lecture() {
               </div>
             )}
 
-            {/* KEY TERMS TAB */}
+            {/* KEY TERMS TAB - Mobile grid adjustments */}
             {activeTab === 'terms' && (
               <div className="max-w-5xl">
                 {keyTerms.length === 0 ? (
-                  <div className="rounded-2xl p-10 text-center" style={{ backgroundColor: '#fef3c7', borderLeft: '4px solid #f59e0b' }}>
+                  <div className="rounded-xl sm:rounded-2xl p-6 sm:p-8 md:p-10 text-center" style={{ backgroundColor: '#fef3c7', borderLeft: '4px solid #f59e0b' }}>
                     <div className="flex items-center justify-center gap-2" style={{ color: '#92400e' }}>
                       <Tag className="w-5 h-5" />
-                      <p className="font-medium">No key terms available</p>
+                      <p className="font-medium text-sm sm:text-base">No key terms available</p>
                     </div>
-                    <p style={{ color: '#b45309' }} className="text-sm mt-1">Key terms are generated from your notes</p>
+                    <p style={{ color: '#b45309' }} className="text-xs sm:text-sm mt-1">Key terms are generated from your notes</p>
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     {keyTerms.map((term) => {
                       const isOpen = expandedTermId === term.term
                       return (
                         <button
                           key={term.term}
                           onClick={() => setExpandedTermId(isOpen ? null : term.term)}
-                          className="text-left rounded-2xl border bg-white p-6 shadow-sm transition hover:shadow-md"
+                          className="text-left rounded-xl sm:rounded-2xl border bg-white p-4 sm:p-5 md:p-6 shadow-sm transition hover:shadow-md min-h-[44px]"
                           style={{ borderColor: 'rgba(54, 44, 93, 0.12)' }}
                         >
-                          <div className="flex items-start justify-between gap-4">
-                            <div>
-                              <p className="text-xs uppercase tracking-widest mb-2 font-semibold" style={{ color: BrandColors.coral }}>
+                          <div className="flex items-start justify-between gap-3 sm:gap-4">
+                            <div className="flex-1 min-w-0">
+                              <p className="text-[10px] sm:text-xs uppercase tracking-widest mb-2 font-semibold" style={{ color: BrandColors.coral }}>
                                 Key Term
                               </p>
-                              <h3 className="text-lg font-semibold" style={{ color: BrandColors.navy }}>
+                              <h3 className="text-base sm:text-lg font-semibold break-words" style={{ color: BrandColors.navy }}>
                                 {term.term}
                               </h3>
                             </div>
                             <span
-                              className="text-xs px-2 py-1 rounded-full border"
+                              className="text-[10px] sm:text-xs px-2 py-1 rounded-full border whitespace-nowrap flex-shrink-0"
                               style={{ borderColor: BrandColors.coral + '40', color: BrandColors.coral }}
                             >
                               {isOpen ? 'Hide' : 'Reveal'}
                             </span>
                           </div>
                           {isOpen && (
-                            <div className="mt-4 border-t pt-4" style={{ borderColor: 'rgba(54, 44, 93, 0.12)' }}>
-                              <p className="text-slate-700 leading-relaxed">
+                            <div className="mt-3 sm:mt-4 border-t pt-3 sm:pt-4" style={{ borderColor: 'rgba(54, 44, 93, 0.12)' }}>
+                              <p className="text-slate-700 leading-relaxed text-sm sm:text-base break-words">
                                 {term.definition}
                               </p>
-                              <p className="text-xs mt-3" style={{ color: '#64748b' }}>
+                              <p className="text-[10px] sm:text-xs mt-2 sm:mt-3" style={{ color: '#64748b' }}>
                                 Quick recall: explain this term in your own words.
                               </p>
                             </div>
@@ -636,25 +683,25 @@ export default function Lecture() {
               </div>
             )}
 
-            {/* FLASHCARDS TAB */}
+            {/* FLASHCARDS TAB - Mobile optimized */}
             {activeTab === 'flashcards' && (
               <div className="max-w-2xl mx-auto">
                 {lecture.flashcards && lecture.flashcards.length > 0 ? (
-                  <div className="space-y-8">
-                    {/* Flashcard */}
-                    <div className="flip-card" style={{ minHeight: '320px' }}>
-                      <div className={`flip-card-inner ${flipped ? 'flipped' : ''}`} style={{ position: 'relative', minHeight: '320px' }}>
+                  <div className="space-y-6 sm:space-y-8">
+                    {/* Flashcard - Responsive height and padding */}
+                    <div className="flip-card" style={{ minHeight: '280px' }}>
+                      <div className={`flip-card-inner ${flipped ? 'flipped' : ''}`} style={{ position: 'relative', minHeight: '280px' }}>
                         {/* Front */}
                         <div
                           onClick={() => setFlipped(!flipped)}
-                          className="absolute inset-0 w-full rounded-2xl border-2 p-12 cursor-pointer flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition overflow-hidden"
+                          className="absolute inset-0 w-full rounded-xl sm:rounded-2xl border-2 p-6 sm:p-8 md:p-12 cursor-pointer flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition overflow-hidden"
                           style={{ backgroundColor: '#ffffff', borderColor: BrandColors.coral + '30', backfaceVisibility: 'hidden' }}
                         >
-                          <p className="text-sm text-slate-500 mb-6 font-medium">Click to reveal answer</p>
+                          <p className="text-xs sm:text-sm text-slate-500 mb-4 sm:mb-6 font-medium">Click to reveal answer</p>
                           <div className="text-center w-full">
-                            <p className="text-xs uppercase tracking-widest text-slate-500 mb-4 font-semibold" style={{ color: BrandColors.navy }}>Question</p>
-                            <div className="max-h-60 overflow-y-auto px-2 scrollbar-hide">
-                              <p className="text-lg md:text-xl font-semibold leading-relaxed" style={{ color: BrandColors.navy }}>
+                            <p className="text-[10px] sm:text-xs uppercase tracking-widest text-slate-500 mb-3 sm:mb-4 font-semibold" style={{ color: BrandColors.navy }}>Question</p>
+                            <div className="max-h-48 sm:max-h-60 overflow-y-auto px-2 scrollbar-hide">
+                              <p className="text-base sm:text-lg md:text-xl font-semibold leading-relaxed break-words" style={{ color: BrandColors.navy }}>
                                 {lecture.flashcards[currentFlashcard].question}
                               </p>
                             </div>
@@ -664,7 +711,7 @@ export default function Lecture() {
                         {/* Back */}
                         <div
                           onClick={() => setFlipped(!flipped)}
-                          className="absolute inset-0 w-full rounded-2xl border-2 p-12 cursor-pointer flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition overflow-hidden"
+                          className="absolute inset-0 w-full rounded-xl sm:rounded-2xl border-2 p-6 sm:p-8 md:p-12 cursor-pointer flex flex-col items-center justify-center shadow-lg hover:shadow-xl transition overflow-hidden"
                           style={{
                             backgroundColor: BrandColors['coral-light'],
                             borderColor: BrandColors.coral + '50',
@@ -672,11 +719,11 @@ export default function Lecture() {
                             transform: 'rotateY(180deg)'
                           }}
                         >
-                          <p className="text-sm mb-6 font-medium" style={{ color: BrandColors.coral }}>Click to see question</p>
+                          <p className="text-xs sm:text-sm mb-4 sm:mb-6 font-medium" style={{ color: BrandColors.coral }}>Click to see question</p>
                           <div className="text-center w-full">
-                            <p className="text-xs uppercase tracking-widest mb-4 font-semibold" style={{ color: BrandColors.coral }}>Answer</p>
-                            <div className="max-h-60 overflow-y-auto px-2 scrollbar-hide">
-                              <p className="text-lg md:text-xl font-semibold leading-relaxed" style={{ color: BrandColors.navy }}>
+                            <p className="text-[10px] sm:text-xs uppercase tracking-widest mb-3 sm:mb-4 font-semibold" style={{ color: BrandColors.coral }}>Answer</p>
+                            <div className="max-h-48 sm:max-h-60 overflow-y-auto px-2 scrollbar-hide">
+                              <p className="text-base sm:text-lg md:text-xl font-semibold leading-relaxed break-words" style={{ color: BrandColors.navy }}>
                                 {lecture.flashcards[currentFlashcard].answer}
                               </p>
                             </div>
@@ -685,33 +732,35 @@ export default function Lecture() {
                       </div>
                     </div>
 
-                    {/* Progress and Navigation */}
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-6 mt-4">
+                    {/* Progress and Navigation - Stack on mobile */}
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sm:gap-6 mt-4">
                       <button
                         onClick={() => { setCurrentFlashcard(Math.max(0, currentFlashcard - 1)); setFlipped(false); }}
                         disabled={currentFlashcard === 0}
-                        className="w-full sm:w-auto px-6 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="w-full sm:w-auto px-5 sm:px-6 py-2.5 sm:py-3 min-h-[44px] rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base font-medium"
                         style={{ backgroundColor: '#f3f4f6', color: BrandColors.navy }}
                       >
                         <ChevronLeft className="w-4 h-4" />
                         Previous
                       </button>
 
-                      <div className="flex flex-col items-center gap-3">
-                        <span className="text-sm font-semibold text-slate-600">
+                      <div className="flex flex-col items-center gap-2 sm:gap-3">
+                        <span className="text-xs sm:text-sm font-semibold text-slate-600">
                           {currentFlashcard + 1} of {lecture.flashcards?.length ?? 0}
                         </span>
-                        <div className="flex gap-1.5">
+                        <div className="flex gap-1 sm:gap-1.5">
                           {lecture.flashcards.map((_, i) => (
                             <button
                               key={i}
                               onClick={() => { setCurrentFlashcard(i); setFlipped(false); }}
                               className="rounded-full transition"
                               style={{
-                                width: i === currentFlashcard ? '32px' : '8px',
-                                height: '8px',
+                                width: i === currentFlashcard ? '24px' : '6px',
+                                height: '6px',
+                                minHeight: '6px',
                                 backgroundColor: i === currentFlashcard ? BrandColors.coral : '#e5e7eb'
                               }}
+                              aria-label={`Go to flashcard ${i + 1}`}
                             />
                           ))}
                         </div>
@@ -720,7 +769,7 @@ export default function Lecture() {
                       <button
                         onClick={() => { setCurrentFlashcard(Math.min((lecture.flashcards?.length ?? 0) - 1, currentFlashcard + 1)); setFlipped(false); }}
                         disabled={currentFlashcard === (lecture.flashcards?.length ?? 0) - 1}
-                        className="w-full sm:w-auto px-6 py-2 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="w-full sm:w-auto px-5 sm:px-6 py-2.5 sm:py-3 min-h-[44px] rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base font-medium"
                         style={{ backgroundColor: '#f3f4f6', color: BrandColors.navy }}
                       >
                         Next
@@ -729,62 +778,62 @@ export default function Lecture() {
                     </div>
                   </div>
                 ) : (
-                  <div className="text-center py-12">
-                    <p className="text-slate-500 text-lg">No flashcards available</p>
+                  <div className="text-center py-8 sm:py-12">
+                    <p className="text-slate-500 text-base sm:text-lg">No flashcards available</p>
                   </div>
                 )}
               </div>
             )}
 
-            {/* QUIZ TAB */}
+            {/* QUIZ TAB - Mobile optimized */}
             {activeTab === 'quiz' && (
               <div className="max-w-3xl">
                 {quizItems.length > 0 ? (
                   <>
                     {!isShowingResults ? (
-                      <div className="space-y-8">
-                        {/* Progress Card */}
-                        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm flex items-center justify-between">
+                      <div className="space-y-6 sm:space-y-8">
+                        {/* Progress Card - Stack elements on mobile */}
+                        <div className="bg-white rounded-lg sm:rounded-xl border border-slate-200 p-4 sm:p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                           <div>
-                            <h3 className="font-semibold text-slate-900">Quiz Progress</h3>
-                            <p className="text-sm text-slate-500 mt-1">
+                            <h3 className="font-semibold text-slate-900 text-base sm:text-lg">Quiz Progress</h3>
+                            <p className="text-xs sm:text-sm text-slate-500 mt-1">
                               Answered: {Object.keys(quizAnswers).length} of {quizItems.length}
                             </p>
                           </div>
-                          <div className="flex flex-col items-end">
-                            <div className="flex items-center gap-3 px-4 py-2 rounded-full border" style={{ backgroundColor: BrandColors['navy-light'], borderColor: 'rgba(54, 44, 93, 0.15)' }}>
-                              <Clock className="w-5 h-5" style={{ color: BrandColors.navy }} />
-                              <span className="font-semibold" style={{ color: BrandColors.navy }}>
+                          <div className="flex flex-col items-start sm:items-end w-full sm:w-auto">
+                            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 rounded-full border w-full sm:w-auto justify-center sm:justify-start" style={{ backgroundColor: BrandColors['navy-light'], borderColor: 'rgba(54, 44, 93, 0.15)' }}>
+                              <Clock className="w-4 h-4 sm:w-5 sm:h-5" style={{ color: BrandColors.navy }} />
+                              <span className="font-semibold text-sm sm:text-base" style={{ color: BrandColors.navy }}>
                                 {`${Math.floor((quizTimeElapsed ?? 0) / 60)}:${String((quizTimeElapsed ?? 0) % 60).padStart(2, '0')}`}
                               </span>
                             </div>
                             {!hasQuizStarted ? (
-                              <span className="text-xs mt-1" style={{ color: '#64748b' }}>
+                              <span className="text-[10px] sm:text-xs mt-1.5 sm:mt-1 text-center sm:text-right w-full" style={{ color: '#64748b' }}>
                                 Timer starts on first answer
                               </span>
                             ) : (
-                              <span className="text-xs mt-1" style={{ color: '#64748b' }}>
+                              <span className="text-[10px] sm:text-xs mt-1.5 sm:mt-1 text-center sm:text-right w-full" style={{ color: '#64748b' }}>
                                 Navigation locked during quiz
                               </span>
                             )}
                           </div>
                         </div>
 
-                        {/* Questions */}
+                        {/* Questions - Better spacing and sizing */}
                         {quizItems.map((q, idx) => (
-                          <div key={idx} className="bg-white rounded-lg border border-slate-200 p-6 space-y-4">
+                          <div key={idx} className="bg-white rounded-lg border border-slate-200 p-4 sm:p-5 md:p-6 space-y-3 sm:space-y-4">
                             <div>
-                              <p className="text-sm font-semibold mb-2" style={{ color: BrandColors.coral }}>
+                              <p className="text-xs sm:text-sm font-semibold mb-2" style={{ color: BrandColors.coral }}>
                                 Question {idx + 1} of {quizItems.length}
                               </p>
-                              <h3 className="text-lg font-bold" style={{ color: BrandColors.navy }}>{q.question}</h3>
+                              <h3 className="text-base sm:text-lg font-bold break-words" style={{ color: BrandColors.navy }}>{q.question}</h3>
                             </div>
 
                             <div className="space-y-2">
                               {q.options.map((option, optIdx) => (
                                 <label
                                   key={optIdx}
-                                  className="flex items-center gap-3 p-4 rounded-lg cursor-pointer transition border-2"
+                                  className="flex items-start sm:items-center gap-3 p-3 sm:p-4 rounded-lg cursor-pointer transition border-2 min-h-[44px]"
                                   style={{
                                     backgroundColor: quizAnswers[idx] === optIdx ? 'rgba(200, 68, 73, 0.08)' : '#ffffff',
                                     borderColor: quizAnswers[idx] === optIdx ? BrandColors.coral : '#e5e7eb'
@@ -799,13 +848,13 @@ export default function Lecture() {
                                       if (!hasQuizStarted) setHasQuizStarted(true)
                                       setQuizAnswers({ ...quizAnswers, [idx]: Number(e.target.value) })
                                     }}
-                                    className="w-4 h-4 flex-shrink-0"
+                                    className="w-4 h-4 flex-shrink-0 mt-0.5 sm:mt-0"
                                   />
-                                  <div className="flex-1">
-                                    <span className="font-semibold" style={{ color: BrandColors.navy }}>
+                                  <div className="flex-1 min-w-0">
+                                    <span className="font-semibold text-sm sm:text-base" style={{ color: BrandColors.navy }}>
                                       {String.fromCharCode(65 + optIdx)}.
                                     </span>
-                                    <span className="ml-2 text-slate-700">{option}</span>
+                                    <span className="ml-2 text-slate-700 text-sm sm:text-base break-words">{option}</span>
                                   </div>
                                 </label>
                               ))}
@@ -813,8 +862,8 @@ export default function Lecture() {
                           </div>
                         ))}
 
-                        {/* Action Buttons */}
-                        <div className="flex flex-col sm:flex-row gap-3 pt-6">
+                        {/* Action Buttons - Stack on mobile */}
+                        <div className="flex flex-col sm:flex-row gap-3 pt-4 sm:pt-6">
                           <button
                             onClick={() => {
                               setQuizAnswers({})
@@ -822,7 +871,7 @@ export default function Lecture() {
                               setHasQuizStarted(false)
                               setQuizTimeElapsed(null)
                             }}
-                            className="flex-1 px-6 py-3 border-2 border-slate-300 rounded-lg hover:bg-slate-50 transition font-medium"
+                            className="flex-1 px-5 sm:px-6 py-3 min-h-[44px] border-2 border-slate-300 rounded-lg hover:bg-slate-50 transition font-medium text-sm sm:text-base"
                             style={{ color: BrandColors.navy }}
                           >
                             Clear All
@@ -833,7 +882,7 @@ export default function Lecture() {
                               setHasQuizStarted(false)
                             }}
                             disabled={Object.keys(quizAnswers).length < quizItems.length}
-                            className="flex-1 px-6 py-3 text-white rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium"
+                            className="flex-1 px-5 sm:px-6 py-3 min-h-[44px] text-white rounded-lg hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition font-medium text-sm sm:text-base"
                             style={{ backgroundColor: quizAnswers[Object.keys(quizAnswers).length < quizItems.length ? -1 : 0] ? BrandColors.coral : BrandColors.coral }}
                           >
                             Submit Quiz ({Object.keys(quizAnswers).length}/{quizItems.length})
@@ -841,9 +890,9 @@ export default function Lecture() {
                         </div>
                       </div>
                     ) : (
-                      <div className="space-y-6">
-                        {/* Results Header */}
-                        <div className="bg-white rounded-xl border border-slate-200 p-8 shadow-sm text-center">
+                      <div className="space-y-4 sm:space-y-6">
+                        {/* Results Header - Mobile optimized */}
+                        <div className="bg-white rounded-lg sm:rounded-xl border border-slate-200 p-6 sm:p-8 shadow-sm text-center">
                           {(() => {
                             const correct = quizItems.filter((q, idx) => quizAnswers[idx] === q.correct_answer).length
                             const percentage = Math.round((correct / quizItems.length) * 100)
@@ -852,34 +901,34 @@ export default function Lecture() {
 
                             return (
                               <>
-                                <div className="inline-flex items-center justify-center w-24 h-24 rounded-full mb-4" style={{ backgroundColor: percentage >= 80 ? '#dcfce7' : percentage >= 60 ? '#fef3c7' : '#fee2e2' }}>
-                                  <span className="text-4xl font-bold" style={{ color: percentage >= 80 ? '#166534' : percentage >= 60 ? '#92400e' : '#991b1b' }}>
+                                <div className="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-full mb-4" style={{ backgroundColor: percentage >= 80 ? '#dcfce7' : percentage >= 60 ? '#fef3c7' : '#fee2e2' }}>
+                                  <span className="text-3xl sm:text-4xl font-bold" style={{ color: percentage >= 80 ? '#166534' : percentage >= 60 ? '#92400e' : '#991b1b' }}>
                                     {percentage}%
                                   </span>
                                 </div>
-                                <h2 className="text-2xl font-bold mb-2 flex items-center justify-center gap-2" style={{ color: BrandColors.navy }}>
+                                <h2 className="text-xl sm:text-2xl font-bold mb-2 flex items-center justify-center gap-2" style={{ color: BrandColors.navy }}>
                                   {percentage >= 80 ? (
                                     <>
-                                      <Trophy className="w-6 h-6" />
+                                      <Trophy className="w-5 h-5 sm:w-6 sm:h-6" />
                                       Great Job!
                                     </>
                                   ) : percentage >= 60 ? (
                                     <>
-                                      <BookOpen className="w-6 h-6" />
+                                      <BookOpen className="w-5 h-5 sm:w-6 sm:h-6" />
                                       Good effort!
                                     </>
                                   ) : (
                                     <>
-                                      <Flame className="w-6 h-6" />
+                                      <Flame className="w-5 h-5 sm:w-6 sm:h-6" />
                                       Keep practicing!
                                     </>
                                   )}
                                 </h2>
-                                <p className="text-slate-600 mb-6">
+                                <p className="text-slate-600 mb-4 sm:mb-6 text-sm sm:text-base">
                                   You got <strong style={{ color: BrandColors.navy }}>{correct} out of {quizItems.length}</strong> questions correct
                                 </p>
-                                <div className="flex items-center justify-center gap-2 text-slate-500 text-sm">
-                                  <Clock className="w-4 h-4" />
+                                <div className="flex items-center justify-center gap-2 text-slate-500 text-xs sm:text-sm">
+                                  <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                   <span>Completed in {minutes}m {String(seconds).padStart(2, '0')}s</span>
                                 </div>
                               </>
@@ -887,42 +936,42 @@ export default function Lecture() {
                           })()}
                         </div>
 
-                        {/* Detailed Results */}
-                        <div className="space-y-4">
+                        {/* Detailed Results - Better mobile readability */}
+                        <div className="space-y-3 sm:space-y-4">
                           {quizItems.map((q, idx) => {
                             const isCorrect = quizAnswers[idx] === q.correct_answer
                             return (
                               <div
                                 key={idx}
-                                className="rounded-lg p-6 border-l-4"
+                                className="rounded-lg p-4 sm:p-5 md:p-6 border-l-4"
                                 style={{
                                   borderLeftColor: isCorrect ? '#16a34a' : '#dc2626',
                                   backgroundColor: isCorrect ? '#f0fdf4' : '#fef2f2'
                                 }}
                               >
-                                <div className="flex gap-4">
+                                <div className="flex gap-3 sm:gap-4">
                                   <div
-                                    className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
+                                    className="flex-shrink-0 w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-white text-sm font-bold"
                                     style={{ backgroundColor: isCorrect ? '#16a34a' : '#dc2626' }}
                                   >
-                                    {isCorrect ? <Check className="w-4 h-4" /> : <X className="w-4 h-4" />}
+                                    {isCorrect ? <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
                                   </div>
-                                  <div className="flex-1">
-                                    <p className="text-sm font-semibold mb-2" style={{ color: isCorrect ? '#166534' : '#991b1b' }}>
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-xs sm:text-sm font-semibold mb-2" style={{ color: isCorrect ? '#166534' : '#991b1b' }}>
                                       Question {idx + 1} {isCorrect ? '✓ Correct' : '✗ Incorrect'}
                                     </p>
-                                    <p className="font-medium mb-3" style={{ color: BrandColors.navy }}>{q.question}</p>
+                                    <p className="font-medium mb-3 text-sm sm:text-base break-words" style={{ color: BrandColors.navy }}>{q.question}</p>
 
-                                    <div className="bg-white rounded p-3 space-y-2 text-sm">
+                                    <div className="bg-white rounded p-3 space-y-2 text-xs sm:text-sm">
                                       <div>
-                                        <p className="text-slate-600">
+                                        <p className="text-slate-600 break-words">
                                           <span className="font-semibold">Your answer:</span>{' '}
                                           {String.fromCharCode(65 + quizAnswers[idx])}. {q.options[quizAnswers[idx]]}
                                         </p>
                                       </div>
                                       {!isCorrect && (
                                         <div className="pt-2 border-t border-slate-200">
-                                          <p className="text-slate-600">
+                                          <p className="text-slate-600 break-words">
                                             <span className="font-semibold" style={{ color: '#16a34a' }}>Correct answer:</span>
                                             <span className="ml-1 font-medium" style={{ color: '#16a34a' }}>
                                               {String.fromCharCode(65 + q.correct_answer)}. {q.options[q.correct_answer]}
@@ -932,7 +981,7 @@ export default function Lecture() {
                                       )}
                                       {q.explanation && (
                                         <div className="pt-2 border-t border-slate-200">
-                                          <p className="text-slate-600">
+                                          <p className="text-slate-600 break-words">
                                             <span className="font-semibold">Explanation:</span> {q.explanation}
                                           </p>
                                         </div>
@@ -952,7 +1001,7 @@ export default function Lecture() {
                             setHasQuizStarted(false)
                             setQuizTimeElapsed(null)
                           }}
-                          className="w-full px-6 py-3 text-white rounded-lg hover:opacity-90 transition font-medium"
+                          className="w-full px-5 sm:px-6 py-3 min-h-[44px] text-white rounded-lg hover:opacity-90 transition font-medium text-sm sm:text-base"
                           style={{ backgroundColor: BrandColors.navy }}
                         >
                           Retake Quiz
@@ -961,8 +1010,8 @@ export default function Lecture() {
                     )}
                   </>
                 ) : (
-                  <div className="text-center py-12">
-                    <p className="text-slate-500 text-lg">No quiz questions available</p>
+                  <div className="text-center py-8 sm:py-12">
+                    <p className="text-slate-500 text-base sm:text-lg">No quiz questions available</p>
                   </div>
                 )}
               </div>
