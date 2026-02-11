@@ -236,7 +236,7 @@ export default function Home() {
                       )}
                       <iframe
                         className="absolute inset-0 h-full w-full"
-                        src="https://drive.google.com/file/d/1bq02GVgX8F91tVBVQhGAMROPB8J7jiAU/preview"
+                        src="https://www.youtube.com/embed/xVE4VR34WSY"
                         title="LectureIQ Demo"
                         frameBorder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
