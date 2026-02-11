@@ -391,7 +391,7 @@ export default function Lecture() {
         </div>
       ) : error || !lecture ? (
         <div className="container mx-auto px-6 py-12">
-          <Link to="/" className="inline-flex items-center gap-2 mb-6" style={{ color: BrandColors.navy }}>
+          <Link to="/my-lectures" className="inline-flex items-center gap-2 mb-6" style={{ color: BrandColors.navy }}>
             <ArrowLeft className="w-4 h-4" />
             <span className="text-sm font-medium">Back to Lectures</span>
           </Link>
@@ -405,7 +405,7 @@ export default function Lecture() {
           <div className="border-b border-slate-200" style={{ backgroundColor: BrandColors['navy-light'] }}>
             <div className="container mx-auto px-6 py-12">
               <Link
-                to="/"
+                to="/my-lectures"
                 className={`inline-flex items-center gap-2 mb-8 ${hasQuizStarted && !isShowingResults ? 'pointer-events-none opacity-50' : ''}`}
                 style={{ color: BrandColors.navy }}
                 aria-disabled={hasQuizStarted && !isShowingResults}
@@ -448,6 +448,7 @@ export default function Lecture() {
                 <button
                   onClick={() => { setActiveTab('notes'); setFlipped(false); setIsShowingResults(false); }}
                   disabled={hasQuizStarted && !isShowingResults}
+                  className={`py-4 px-2 font-medium transition border-b-4 flex items-center gap-2 ${ activeTab === 'notes' ? 'tab-active' : 'border-transparent text-slate-600 hover:text-slate-900' } ${hasQuizStarted && !isShowingResults ? 'opacity-50 cursor-not-allowed' : ''}`}
                   style={{ borderBottomColor: activeTab === 'notes' ? BrandColors.coral : 'transparent', color: activeTab === 'notes' ? BrandColors.navy : undefined }}
                 >
                   <BookOpen className="w-5 h-5" />
