@@ -10,8 +10,6 @@ if (-not (Test-Path "backend") -or -not (Test-Path "frontend")) {
 }
 
 Write-Host ""
-Write-Host "All validation tests passed (8/8)" -ForegroundColor Green
-Write-Host ""
 Write-Host "Launching services..." -ForegroundColor Yellow
 
 # Start backend in new window
@@ -63,8 +61,6 @@ Write-Host "To stop services:" -ForegroundColor Yellow
 Write-Host "   Close the backend and frontend terminal windows" -ForegroundColor Gray
 Write-Host "   Or press Ctrl+C in each terminal" -ForegroundColor Gray
 
-Write-Host ""
-Write-Host "For detailed instructions, see START_HERE.md" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Press any key to exit this launcher..." -ForegroundColor Gray
 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
