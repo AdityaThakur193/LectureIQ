@@ -9,10 +9,12 @@ import Terms from './pages/Terms'
 import NotFound from './pages/NotFound'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
+import ScrollToTop from './components/ScrollToTop'
 
 export default function App() {
   return (
     <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <ScrollToTop />
       <div className="flex flex-col min-h-screen bg-slate-50">
         <Navbar />
         <main className="flex-1">
