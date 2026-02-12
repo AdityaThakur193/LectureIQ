@@ -229,35 +229,8 @@ export default function UploadForm() {
           {isLoading && (
             <div className="p-6 rounded-lg bg-gradient-to-r from-brand-emerald/10 to-brand-navy/10 border border-brand-emerald/20">
               <div className="flex items-center gap-4">
-                <div className="relative">
-                  <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center">
-                    <StageIcon className="w-6 h-6 text-brand-emerald animate-pulse" />
-                  </div>
-                  <div className="absolute inset-0">
-                    <svg className="w-12 h-12 -rotate-90">
-                      <circle
-                        cx="24"
-                        cy="24"
-                        r="20"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        fill="none"
-                        className="text-brand-emerald/30"
-                      />
-                      <circle
-                        cx="24"
-                        cy="24"
-                        r="20"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        fill="none"
-                        strokeDasharray="125.6"
-                        strokeDashoffset="31.4"
-                        className="text-brand-emerald animate-spin"
-                        style={{ animationDuration: '2s' }}
-                      />
-                    </svg>
-                  </div>
+                <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center">
+                  <StageIcon className="w-6 h-6 text-brand-emerald" />
                 </div>
                 <div className="flex-1">
                   <p className="text-base font-semibold text-brand-navy mb-1">
@@ -285,25 +258,7 @@ export default function UploadForm() {
             className="w-full py-4 px-6 rounded font-semibold text-lg flex items-center justify-center gap-2 transition-all transform active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed bg-white border-2 border-brand-emerald text-brand-emerald hover:bg-brand-emerald hover:text-white"
           >
             {isLoading ? (
-              <>
-                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
-                    stroke="currentColor"
-                    strokeWidth="4"
-                    fill="none"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                <span>Processing...</span>
-              </>
+              <span>Processing...</span>
             ) : (
               <>
                 <Upload className="w-5 h-5" />

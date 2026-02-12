@@ -1,3 +1,10 @@
 #!/bin/bash
+set -e
+
+# Use PORT environment variable or default to 8000
 PORT=${PORT:-8000}
-exec uvicorn app.main:app --host 0.0.0.0 --port $PORT
+
+echo "Starting LectureIQ Backend on port $PORT..."
+
+# Start Uvicorn with longer timeout for processing
+exec uvicorn app.main:app --host 0.0.0.0 --port $PORT --timeout-keep-alive 300
