@@ -26,9 +26,7 @@ export interface ProgressCallback {
 }
 
 /**
- * Wake up the backend server if it's sleeping
- */
-asyCheck if server is available
+ * Check if server is available
  */
 async function checkServerConnection(onProgress?: ProgressCallback): Promise<boolean> {
   try {
