@@ -11,6 +11,7 @@ export interface UploadResponse {
   lecture_id: string
   status: 'processing' | 'completed' | 'failed'
   message: string
+  status_url?: string
   transcript?: string
   notes?: string
   flashcards?: Array<{ question: string; answer: string; difficulty?: string }>
@@ -21,6 +22,21 @@ export interface UploadResponse {
     explanation?: string
   }>
   error?: string
+  result?: {
+    lecture_id: string
+    status: 'processing' | 'completed' | 'failed'
+    message: string
+    transcript?: string
+    notes?: string
+    flashcards?: Array<{ question: string; answer: string; difficulty?: string }>
+    quiz?: Array<{ 
+      question: string
+      options: string[]
+      correct_answer: number
+      explanation?: string
+    }>
+    error?: string
+  }
 }
 
 export interface ProgressCallback {
@@ -110,6 +126,54 @@ async function uploadWithRetry(
 }
 
 /**
+ * Poll the status endpoint until processing is complete
+ */
+async function pollProcessingStatus(
+  lectureId: string,
+  onProgress?: ProgressCallback,
+  maxAttempts: number = 120, // 10 minutes max (5 seconds * 120)
+  pollInterval: number = 5000 // 5 seconds
+): Promise<UploadResponse> {
+  let attempts = 0
+  
+  while (attempts < maxAttempts) {
+    try {
+      attempts++
+      const response = await fetch(`${API_BASE}/api/status/${lectureId}`)
+      
+      if (!response.ok) {
+        throw new Error(`Status check failed: ${response.status}`)
+      }
+      
+      const statusData = await response.json()
+      
+      // Update progress (show we're still processing)
+      onProgress?.('processing', Math.min((attempts / maxAttempts) * 100, 95))
+      
+      if (statusData.status === 'completed' || statusData.status === 'failed') {
+        // Processing complete, return the result
+        return statusData.result || statusData
+      }
+      
+      // Still processing, wait before checking again
+      await new Promise(resolve => setTimeout(resolve, pollInterval))
+      
+    } catch (error) {
+      console.error(`Status check attempt ${attempts} failed:`, error)
+      
+      if (attempts >= maxAttempts) {
+        throw new Error('Processing timed out. Please check your lectures page.')
+      }
+      
+      // Wait before retrying
+      await new Promise(resolve => setTimeout(resolve, pollInterval))
+    }
+  }
+  
+  throw new Error('Processing timed out')
+}
+
+/**
  * Upload lecture to backend for processing, then save to IndexedDB
  */
 export async function uploadAndProcessLecture(
@@ -141,10 +205,22 @@ export async function uploadAndProcessLecture(
   }
 
   // Step 3: Processing
-  onProgress?.('processing', 100)
-  const result: UploadResponse = await response.json()
+  onProgress?.('processing', 0)
+  const uploadResult: UploadResponse = await response.json()
 
-  // Create lecture object
+  // Check if we need to poll for completion
+  let result: UploadResponse
+  if (uploadResult.status === 'processing') {
+    // Backend is processing asynchronously, poll for completion
+    result = await pollProcessingStatus(uploadResult.lecture_id, onProgress)
+  } else {
+    // Processing already complete (shouldn't happen with new backend, but handle it)
+    result = uploadResult
+  }
+
+  onProgress?.('processing', 100)
+
+  // Create lecture object from the final result
   const lecture: Lecture = {
     id: result.lecture_id,
     title: title,

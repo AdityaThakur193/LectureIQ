@@ -229,35 +229,8 @@ export default function UploadForm() {
           {isLoading && (
             <div className="p-6 rounded-lg bg-gradient-to-r from-brand-emerald/10 to-brand-navy/10 border border-brand-emerald/20">
               <div className="flex items-center gap-4">
-                <div className="relative">
-                  <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center">
-                    <StageIcon className="w-6 h-6 text-brand-emerald animate-pulse" />
-                  </div>
-                  <div className="absolute inset-0">
-                    <svg className="w-12 h-12 -rotate-90">
-                      <circle
-                        cx="24"
-                        cy="24"
-                        r="20"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        fill="none"
-                        className="text-brand-emerald/30"
-                      />
-                      <circle
-                        cx="24"
-                        cy="24"
-                        r="20"
-                        stroke="currentColor"
-                        strokeWidth="3"
-                        fill="none"
-                        strokeDasharray="125.6"
-                        strokeDashoffset="31.4"
-                        className="text-brand-emerald animate-spin"
-                        style={{ animationDuration: '2s' }}
-                      />
-                    </svg>
-                  </div>
+                <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center">
+                  <StageIcon className="w-6 h-6 text-brand-emerald animate-pulse" />
                 </div>
                 <div className="flex-1">
                   <p className="text-base font-semibold text-brand-navy mb-1">

@@ -123,6 +123,21 @@ npm run dev
 
 ## Usage
 
+### Background Processing (New!)
+
+LectureIQ now uses **asynchronous background processing** to handle long-running tasks:
+
+- **Upload returns immediately** — No waiting for processing to complete
+- **Background processing** — Lectures process without blocking the API
+- **Status polling** — Frontend automatically checks progress every 5 seconds
+- **Multiple uploads** — Upload multiple lectures simultaneously
+- **Container stability** — Health checks remain responsive during processing
+
+**API Endpoints:**
+- `POST /api/upload` — Upload lecture (returns immediately with lecture_id)
+- `GET /api/status/{lecture_id}` — Check processing status
+- `GET /health` — Health check (always responsive)
+
 ### Processing Timeline
 1. Upload video → Saved to temp directory (< 1 second)
 2. Audio extraction → PyAV converts to WAV (1-2 seconds)
@@ -237,6 +252,30 @@ LectureIQ/
 
 
 ## Deployment
+
+See [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) for detailed deployment instructions and platform-specific configurations.
+
+### Quick Deployment Notes
+
+**Important**: Configure health checks properly to prevent container restarts:
+- HeDocker Compose (Recommended for testing deployment)
+```bash
+# Set your API key
+echo "GEMINI_API_KEY=your_key_here" > .env
+
+# Start services
+docker-compose up --build
+```
+
+Services will be available at:
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:8080
+- Health Check: http://localhost:8080/health
+
+### alth check path: `/health`
+- Interval: 30 seconds minimum
+- Timeout: 10 seconds minimum
+- Failure threshold: 3 attempts minimum
 
 ### Local Development
 ```bash
