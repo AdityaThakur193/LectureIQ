@@ -51,20 +51,10 @@ async function checkServerConnection(onProgress?: ProgressCallback): Promise<boo
     console.error('Server connection check failed:', error)
     return false
   }
+}
+
 /**
- * Upload with retry logic
- */
-async function uploadWithRetry(
-  formData: FormData,
-  onProgress?: ProgressCallback,
-  retries: number = 4
-): Promise<Response> {
-  let lastError: Error | null = null
-  
-  for (let attempt = 0; attempt <= retries; attempt++) {
-    try {
-      onProgress?.('uploading', ((attempt + 1) / (retries + 1)) * 50)
-      lecture to backend for processing, then save to IndexedDB
+ * Upload lecture to backend for processing, then save to IndexedDB
  */
 export async function uploadAndProcessLecture(
   title: string,
@@ -98,6 +88,18 @@ export async function uploadAndProcessLecture(
     throw new Error(error.detail || 'Upload failed')
   }
 
+  onProgress?.('processing', 100)
+  const result: UploadResponse = await response.json()
+
+  // Create lecture object
+  const lecture: Lecture = {
+    id: result.lecture_id,
+    title: title,
+    status: result.status,
+    transcript: result.transcript,
+    notes: result.notes,
+    flashcards: result.flashcards,
+    quiz: result.quiz,
     error: result.error,
     createdAt: new Date().toISOString(),
   }
