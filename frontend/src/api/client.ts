@@ -3,9 +3,7 @@
 import { lectureDB, type Lecture } from '../utils/db'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
-const WAKE_UP_TIMEOUT = 60000 // 60 seconds for server to wake up
-const HEALTH_CHECK_RETRIES = 5
-const RETRY_DELAY = 3000 // 3 seconds between retries
+const HEALTH_CHECK_TIMEOUT = 10000 // 10 seconds for health check
 
 export interface UploadResponse {
   lecture_id: string
@@ -30,43 +28,31 @@ export interface ProgressCallback {
 /**
  * Wake up the backend server if it's sleeping
  */
-async function wakeUpServer(onProgress?: ProgressCallback): Promise<boolean> {
-  const startTime = Date.now()
-  let attempts = 0
-  
-  while (attempts < HEALTH_CHECK_RETRIES) {
-    try {
-      attempts++
-      onProgress?.('waking', (attempts / HEALTH_CHECK_RETRIES) * 100)
-      
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), WAKE_UP_TIMEOUT)
-      
-      const response = await fetch(`${API_BASE}/health`, {
-        method: 'GET',
-        signal: controller.signal,
-      })
-      
-      clearTimeout(timeoutId)
-      
-      if (response.ok) {
-        console.log(`Server woke up in ${Date.now() - startTime}ms`)
-        // Wait for server to stabilize before proceeding
-        await new Promise(resolve => setTimeout(resolve, 1500))
-        return true
-      }
-    } catch (error) {
-      console.log(`Wake-up attempt ${attempts} failed:`, error)
-      
-      if (attempts < HEALTH_CHECK_RETRIES) {
-        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY))
-      }
+asyCheck if server is available
+ */
+async function checkServerConnection(onProgress?: ProgressCallback): Promise<boolean> {
+  try {
+    onProgress?.('waking', 50)
+    
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), HEALTH_CHECK_TIMEOUT)
+    
+    const response = await fetch(`${API_BASE}/health`, {
+      method: 'GET',
+      signal: controller.signal,
+    })
+    
+    clearTimeout(timeoutId)
+    
+    if (response.ok) {
+      onProgress?.('waking', 100)
+      return true
     }
+    return false
+  } catch (error) {
+    console.error('Server connection check failed:', error)
+    return false
   }
-  
-  return false
-}
-
 /**
  * Upload with retry logic
  */
@@ -80,37 +66,7 @@ async function uploadWithRetry(
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
       onProgress?.('uploading', ((attempt + 1) / (retries + 1)) * 50)
-      
-      const response = await fetch(`${API_BASE}/api/upload`, {
-        method: 'POST',
-        body: formData,
-      })
-      
-      if (response.ok) {
-        return response
-      }
-      
-      // If server returned an error, don't retry
-      if (response.status >= 400 && response.status < 500) {
-        return response
-      }
-      
-      throw new Error(`Upload failed with status ${response.status}`)
-    } catch (error) {
-      lastError = error as Error
-      
-      if (attempt < retries) {
-        console.log(`Upload attempt ${attempt + 1} failed, retrying...`)
-        await new Promise(resolve => setTimeout(resolve, RETRY_DELAY))
-      }
-    }
-  }
-  
-  throw lastError || new Error('Upload failed')
-}
-
-/**
- * Upload lecture to backend for processing, then save to IndexedDB
+      lecture to backend for processing, then save to IndexedDB
  */
 export async function uploadAndProcessLecture(
   title: string,
@@ -118,41 +74,32 @@ export async function uploadAndProcessLecture(
   slides?: File,
   onProgress?: ProgressCallback
 ): Promise<Lecture> {
-  // Step 1: Wake up server if needed
+  // Step 1: Check server connection
   onProgress?.('waking', 0)
-  const serverAwake = await wakeUpServer(onProgress)
+  const serverAvailable = await checkServerConnection(onProgress)
   
-  if (!serverAwake) {
-    throw new Error('Unable to connect to server. Please check your internet connection and try again.')
+  if (!serverAvailable) {
+    throw new Error('Unable to connect to server. Please check your connection and try again.')
   }
   
-  // Step 2: Prepare and upload files
+  // Step 2: Upload and process
   const formData = new FormData()
   formData.append('title', title)
   formData.append('video', video)
   if (slides) formData.append('slides', slides)
 
-  onProgress?.('uploading', 0)
-  const response = await uploadWithRetry(formData, onProgress)
+  onProgress?.('uploading', 50)
+  
+  const response = await fetch(`${API_BASE}/api/upload`, {
+    method: 'POST',
+    body: formData,
+  })
 
   if (!response.ok) {
-    const error = await response.json()
+    const error = await response.json().catch(() => ({ detail: 'Upload failed' }))
     throw new Error(error.detail || 'Upload failed')
   }
 
-  // Step 3: Processing
-  onProgress?.('processing', 100)
-  const result: UploadResponse = await response.json()
-
-  // Create lecture object
-  const lecture: Lecture = {
-    id: result.lecture_id,
-    title: title,
-    status: result.status,
-    transcript: result.transcript,
-    notes: result.notes,
-    flashcards: result.flashcards,
-    quiz: result.quiz,
     error: result.error,
     createdAt: new Date().toISOString(),
   }
