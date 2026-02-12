@@ -4,8 +4,8 @@ import { lectureDB, type Lecture } from '../utils/db'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 const WAKE_UP_TIMEOUT = 60000 // 60 seconds for server to wake up
-const HEALTH_CHECK_RETRIES = 3
-const RETRY_DELAY = 2000 // 2 seconds between retries
+const HEALTH_CHECK_RETRIES = 5
+const RETRY_DELAY = 3000 // 3 seconds between retries
 
 export interface UploadResponse {
   lecture_id: string
@@ -51,6 +51,8 @@ async function wakeUpServer(onProgress?: ProgressCallback): Promise<boolean> {
       
       if (response.ok) {
         console.log(`Server woke up in ${Date.now() - startTime}ms`)
+        // Wait for server to stabilize before proceeding
+        await new Promise(resolve => setTimeout(resolve, 1500))
         return true
       }
     } catch (error) {
@@ -71,7 +73,7 @@ async function wakeUpServer(onProgress?: ProgressCallback): Promise<boolean> {
 async function uploadWithRetry(
   formData: FormData,
   onProgress?: ProgressCallback,
-  retries: number = 2
+  retries: number = 4
 ): Promise<Response> {
   let lastError: Error | null = null
   

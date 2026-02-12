@@ -83,7 +83,7 @@ export default function UploadForm() {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Upload failed";
-      setError(errorMessage);
+      setError(formatErrorMessage(errorMessage));
       setUploadStage('idle');
     }
   };
@@ -91,7 +91,7 @@ export default function UploadForm() {
   const isLoading = uploadStage !== 'idle' && uploadStage !== 'complete';
   const StageIcon = getStageMessage().icon;
 
-  return (
+  return (errorMessage
     <div className="max-w-2xl mx-auto">
       <div className="bg-white rounded-xl border border-slate-200 p-10 lg:p-12 shadow-sm">
         <div className="space-y-8">
