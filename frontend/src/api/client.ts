@@ -30,7 +30,7 @@ export interface ProgressCallback {
  */
 async function checkServerConnection(onProgress?: ProgressCallback): Promise<boolean> {
   try {
-    onProgress?.('waking', 50)
+    onProgress?.('waking', 15)
     
     const controller = new AbortController()
     const timeoutId = setTimeout(() => controller.abort(), HEALTH_CHECK_TIMEOUT)
@@ -43,7 +43,7 @@ async function checkServerConnection(onProgress?: ProgressCallback): Promise<boo
     clearTimeout(timeoutId)
     
     if (response.ok) {
-      onProgress?.('waking', 100)
+      onProgress?.('waking', 35)
       return true
     }
     return false
@@ -63,7 +63,7 @@ export async function uploadAndProcessLecture(
   onProgress?: ProgressCallback
 ): Promise<Lecture> {
   // Step 1: Check server connection
-  onProgress?.('waking', 0)
+  onProgress?.('waking', 5)
   const serverAvailable = await checkServerConnection(onProgress)
   
   if (!serverAvailable) {
@@ -76,20 +76,22 @@ export async function uploadAndProcessLecture(
   formData.append('video', video)
   if (slides) formData.append('slides', slides)
 
-  onProgress?.('uploading', 50)
+  onProgress?.('uploading', 45)
   
   const response = await fetch(`${API_BASE}/api/upload`, {
     method: 'POST',
     body: formData,
   })
 
+  onProgress?.('processing', 70)
+
   if (!response.ok) {
     const error = await response.json().catch(() => ({ detail: 'Upload failed' }))
     throw new Error(error.detail || 'Upload failed')
   }
 
-  onProgress?.('processing', 100)
   const result: UploadResponse = await response.json()
+  onProgress?.('processing', 90)
 
   // Create lecture object
   const lecture: Lecture = {
@@ -106,6 +108,7 @@ export async function uploadAndProcessLecture(
 
   // Save to IndexedDB
   await lectureDB.saveLecture(lecture)
+  onProgress?.('processing', 100)
 
   return lecture
 }

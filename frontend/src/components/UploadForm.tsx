@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Upload, FileText, Lightbulb, CheckCircle2, Server, Cloud, Cpu } from "lucide-react";
 import { uploadAndProcessLecture, type ProgressCallback } from "../api/client";
@@ -12,12 +12,22 @@ export default function UploadForm() {
   const [slides, setSlides] = useState<File | null>(null);
   const [title, setTitle] = useState("");
   const [uploadStage, setUploadStage] = useState<UploadStage>('idle');
+  const [progressPercent, setProgressPercent] = useState(0);
+  const [processingSeconds, setProcessingSeconds] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
   const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return bytes + " B";
     if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KB";
     return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+  };
+
+  const getProcessingHint = (seconds: number): string => {
+    if (seconds < 20) return 'Extracting and preparing audio stream';
+    if (seconds < 60) return 'Transcribing speech to text';
+    if (seconds < 120) return 'Building structured notes';
+    if (seconds < 180) return 'Generating flashcards and quiz';
+    return 'Finalizing and saving your study pack';
   };
 
   const getStageMessage = (): { icon: typeof Server; text: string; subtext: string } => {
@@ -38,7 +48,7 @@ export default function UploadForm() {
         return {
           icon: Cpu,
           text: 'Processing your lecture...',
-          subtext: 'Generating notes, flashcards, and quiz'
+          subtext: getProcessingHint(processingSeconds)
         }
       default:
         return {
@@ -48,6 +58,35 @@ export default function UploadForm() {
         }
     }
   }
+
+  useEffect(() => {
+    if (uploadStage !== 'processing') {
+      setProcessingSeconds(0);
+      return;
+    }
+
+    const startedAt = Date.now();
+    const timer = window.setInterval(() => {
+      setProcessingSeconds(Math.floor((Date.now() - startedAt) / 1000));
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [uploadStage]);
+
+  useEffect(() => {
+    if (uploadStage !== 'processing') return;
+
+    const interval = window.setInterval(() => {
+      setProgressPercent((previous) => {
+        if (previous >= 95) return previous;
+        if (previous < 75) return Math.min(95, previous + 1.5);
+        if (previous < 88) return Math.min(95, previous + 0.8);
+        return Math.min(95, previous + 0.3);
+      });
+    }, 1200);
+
+    return () => window.clearInterval(interval);
+  }, [uploadStage]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -62,9 +101,14 @@ export default function UploadForm() {
     if (!video || !title) return;
 
     setError(null);
+    setProgressPercent(0);
+    setProcessingSeconds(0);
 
-    const progressCallback: ProgressCallback = (stage) => {
+    const progressCallback: ProgressCallback = (stage, progress) => {
       setUploadStage(stage);
+      if (typeof progress === 'number') {
+        setProgressPercent((previous) => Math.max(previous, progress));
+      }
     }
 
     try {
@@ -77,6 +121,7 @@ export default function UploadForm() {
       );
 
       setUploadStage('complete');
+      setProgressPercent(100);
       
       // Navigate to the lecture page
       navigate(`/lectures/${lecture.id}`);
@@ -85,6 +130,8 @@ export default function UploadForm() {
         error instanceof Error ? error.message : "Upload failed";
       setError(errorMessage);
       setUploadStage('idle');
+      setProgressPercent(0);
+      setProcessingSeconds(0);
     }
   };
 
@@ -239,8 +286,27 @@ export default function UploadForm() {
                   <p className="text-sm text-slate-600">
                     {getStageMessage().subtext}
                   </p>
+                  <div className="mt-3">
+                    <div className="w-full h-2 rounded-full bg-white/70 overflow-hidden">
+                      <div
+                        className="h-full rounded-full bg-brand-emerald transition-all duration-700"
+                        style={{ width: `${Math.round(progressPercent)}%` }}
+                      />
+                    </div>
+                    <div className="mt-2 flex items-center justify-between text-xs text-slate-600">
+                      <span>{Math.round(progressPercent)}% complete</span>
+                      {uploadStage === 'processing' ? (
+                        <span>Elapsed: {processingSeconds}s</span>
+                      ) : (
+                        <span>Preparing pipeline</span>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
+              <p className="text-xs text-slate-500 mt-3">
+                Keep this tab open while processing. You'll be redirected automatically when done.
+              </p>
             </div>
           )}
 
@@ -258,7 +324,7 @@ export default function UploadForm() {
             className="w-full py-4 px-6 rounded font-semibold text-lg flex items-center justify-center gap-2 transition-all transform active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed bg-white border-2 border-brand-emerald text-brand-emerald hover:bg-brand-emerald hover:text-white"
           >
             {isLoading ? (
-              <span>Processing...</span>
+              <span>Processing... {Math.round(progressPercent)}%</span>
             ) : (
               <>
                 <Upload className="w-5 h-5" />

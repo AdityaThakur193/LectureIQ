@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: lectureiq-backend
+    env: docker
+    rootDir: backend
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: STORAGE_PATH
+        value: storage

@@ -243,11 +243,24 @@ LectureIQ/
 .\launch.ps1
 ```
 
-### Railway Deployment
-1. Push to GitHub
-2. Connect repository to Railway
-3. Set environment variables (GEMINI_API_KEY, etc.)
-4. Railway automatically builds and deploys using the Dockerfile
+### Render Deployment (Backend)
+1. Push your code to GitHub.
+2. On Render, create a new **Web Service** from this repository.
+3. Set **Root Directory** to `backend`.
+4. Choose **Runtime** as `Docker` (Render will use `backend/Dockerfile`).
+5. Add environment variable: `GEMINI_API_KEY=<your_key>`.
+6. (Optional) Add `STORAGE_PATH=storage`.
+7. Set Health Check Path to `/health`.
+8. Deploy and confirm the service is healthy.
+
+Your backend URL will look like:
+`https://lectureiq-backend.onrender.com`
+
+If your frontend is hosted elsewhere, set:
+`VITE_API_URL=https://lectureiq-backend.onrender.com`
+
+You can also deploy with the included Render blueprint file:
+`render.yaml`
 
 ---
 
